@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, MapPin, ChevronLeft, ChevronRight, Search, Clock, CheckCircle2, Quote, AlertCircle, ArrowLeft, Users, UserPlus, AlertTriangle } from 'lucide-react';
+import { Calendar, MapPin, ChevronLeft, ChevronRight, Search, Clock, CheckCircle2, Quote, AlertCircle, ArrowLeft, Users, UserPlus, AlertTriangle, ArrowUpDown, X, Filter } from 'lucide-react';
 import Button from '../Button';
 import Input from '../Input';
 import { EventData } from '../../types';
@@ -21,6 +21,7 @@ const Activities: React.FC<ActivitiesProps> = ({ registeredEventIds, onRegister 
   const [activeFilter, setActiveFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [dateFilter, setDateFilter] = useState('All Dates');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedEvent, setSelectedEvent] = useState<EventData | null>(null);
   const [registeringState, setRegisteringState] = useState<'idle' | 'loading' | 'success'>('idle');
@@ -58,6 +59,10 @@ const Activities: React.FC<ActivitiesProps> = ({ registeredEventIds, onRegister 
     const matchesDate = dateFilter === 'All Dates' || e.date === dateFilter;
 
     return matchesCategory && matchesSearch && matchesDate;
+  }).sort((a, b) => {
+    return sortOrder === 'asc' 
+      ? a.title.localeCompare(b.title) 
+      : b.title.localeCompare(a.title);
   });
 
   // Pagination Logic
@@ -164,6 +169,16 @@ const Activities: React.FC<ActivitiesProps> = ({ registeredEventIds, onRegister 
         setRegisteringState('success');
     }, 1500);
   };
+
+  const resetFilters = () => {
+    setSearchQuery('');
+    setActiveFilter('All');
+    setDateFilter('All Dates');
+    setSortOrder('asc');
+    setCurrentPage(1);
+  };
+
+  const hasActiveFilters = searchQuery !== '' || activeFilter !== 'All' || dateFilter !== 'All Dates';
 
   const container = {
     hidden: { opacity: 0 },
@@ -456,7 +471,7 @@ const Activities: React.FC<ActivitiesProps> = ({ registeredEventIds, onRegister 
 
       {/* Search & Date Filters */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="md:col-span-3">
+          <div className="md:col-span-2">
               <Input 
                 variant="light"
                 placeholder="Search events by name or location..."
@@ -465,15 +480,40 @@ const Activities: React.FC<ActivitiesProps> = ({ registeredEventIds, onRegister 
                 onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
               />
           </div>
-          <div>
-              <Input 
-                as="select"
-                variant="light"
-                icon={<Calendar size={18} />}
-                value={dateFilter}
-                onChange={(e) => { setDateFilter(e.target.value); setCurrentPage(1); }}
-                options={uniqueDates}
-              />
+          <div className="flex gap-2 md:col-span-2">
+              <div className="flex-1">
+                <Input 
+                  as="select"
+                  variant="light"
+                  icon={<Calendar size={18} />}
+                  value={dateFilter}
+                  onChange={(e) => { setDateFilter(e.target.value); setCurrentPage(1); }}
+                  options={uniqueDates}
+                />
+              </div>
+              <button 
+                onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
+                className="bg-white border border-slate-200 px-4 rounded-xl text-slate-500 hover:text-slate-800 hover:border-slate-300 transition-colors flex items-center gap-2 font-medium"
+                title={sortOrder === 'asc' ? 'Sort Z-A' : 'Sort A-Z'}
+              >
+                 <ArrowUpDown size={18} />
+                 <span className="hidden sm:inline">{sortOrder === 'asc' ? 'A-Z' : 'Z-A'}</span>
+              </button>
+              
+              <AnimatePresence>
+                {hasActiveFilters && (
+                  <motion.button 
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    onClick={resetFilters}
+                    className="bg-red-50 border border-red-100 px-3 rounded-xl text-red-500 hover:bg-red-100 transition-colors"
+                    title="Reset All Filters"
+                  >
+                     <X size={18} />
+                  </motion.button>
+                )}
+              </AnimatePresence>
           </div>
       </div>
 
@@ -540,7 +580,7 @@ const Activities: React.FC<ActivitiesProps> = ({ registeredEventIds, onRegister 
       {/* Events Grid */}
       {displayedEvents.length > 0 ? (
         <motion.div 
-          key={activeFilter + currentPage + searchQuery + dateFilter} 
+          key={activeFilter + currentPage + searchQuery + dateFilter + sortOrder} 
           variants={container}
           initial="hidden"
           animate="show"
@@ -553,9 +593,9 @@ const Activities: React.FC<ActivitiesProps> = ({ registeredEventIds, onRegister 
                 key={evt.id} 
                 variants={item}
                 whileHover={{ 
-                  y: -5, 
-                  scale: 1.02,
-                  boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" 
+                  y: -8, 
+                  scale: 1.03,
+                  boxShadow: "0 25px 30px -5px rgba(0, 0, 0, 0.15)"
                 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 className={`bg-white rounded-2xl shadow-sm border flex flex-col h-full cursor-pointer relative overflow-hidden group ${isRegistered ? 'border-green-200' : 'border-slate-100'}`}
@@ -623,6 +663,11 @@ const Activities: React.FC<ActivitiesProps> = ({ registeredEventIds, onRegister 
            className="text-center py-20"
         >
            <p className="text-slate-400">No events found matching your criteria.</p>
+           {hasActiveFilters && (
+               <button onClick={resetFilters} className="text-brand-purple font-bold text-sm mt-2 hover:underline">
+                  Clear Filters
+               </button>
+           )}
         </motion.div>
       )}
       
