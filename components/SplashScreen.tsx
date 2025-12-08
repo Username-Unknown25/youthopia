@@ -1,6 +1,6 @@
+
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { PartyPopper } from 'lucide-react';
 
 interface SplashScreenProps {
   onComplete: () => void;
@@ -54,45 +54,19 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-        className="relative z-10 flex flex-col items-center"
+        className="relative z-10 flex flex-col items-center p-8"
       >
-        <motion.p
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.5, duration: 0.8 }}
-          className="text-xl md:text-2xl text-slate-300 font-light mb-6 tracking-[0.2em] uppercase"
-        >
-          Welcome To
-        </motion.p>
-
-        {/* Logo Placeholder */}
-        <motion.div
-          animate={{ 
-            rotate: [0, -5, 5, -5, 0],
-            scale: [1, 1.05, 1],
-            filter: ["drop-shadow(0 0 0px rgba(249,115,22,0))", "drop-shadow(0 0 20px rgba(249,115,22,0.4))", "drop-shadow(0 0 0px rgba(249,115,22,0))"]
-          }}
-          transition={{ duration: 2, ease: "easeInOut", repeat: Infinity, repeatDelay: 1 }}
-          className="bg-white/10 p-8 rounded-full backdrop-blur-md border border-white/20 mb-8 shadow-2xl"
-        >
-          <PartyPopper size={80} className="text-brand-orange" />
-        </motion.div>
-
-        <motion.h1
-          initial={{ y: 40, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.7, duration: 0.8, type: "spring" }}
-          className="text-5xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-brand-orange via-brand-pink to-brand-purple tracking-tighter"
-        >
-          YOUTHOPIA
-        </motion.h1>
-
-        <motion.div 
-           initial={{ width: 0, opacity: 0 }}
-           animate={{ width: 120, opacity: 1 }}
-           transition={{ delay: 1.2, duration: 1, ease: "easeOut" }}
-           className="h-1 bg-gradient-to-r from-brand-orange to-brand-purple mt-4 rounded-full"
-        />
+        {/* Custom Logo Image */}
+        <div className="w-80 h-80 relative mb-4">
+            <img 
+              src="/splash-logo.png" 
+              alt="Welcome to Youthopia" 
+              className="w-full h-full object-contain drop-shadow-2xl"
+              onError={(e) => {
+                  e.currentTarget.src = "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=600&q=80";
+              }}
+            />
+        </div>
       </motion.div>
     </div>
   );

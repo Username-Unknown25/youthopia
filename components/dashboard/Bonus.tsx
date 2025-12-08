@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion, useMotionValue, useTransform, animate, AnimatePresence } from 'framer-motion';
-import { Activity, ShoppingBag, Sparkles, Trophy, Lock, CheckCircle2, ChevronRight, HelpCircle } from 'lucide-react';
+import { Activity, ShoppingBag, Sparkles, Trophy, Lock, CheckCircle2, ChevronRight, HelpCircle, CircleCheck, CircleAlert } from 'lucide-react';
 import Button from '../Button';
 
 interface BonusProps {
@@ -65,6 +65,7 @@ const Bonus: React.FC<BonusProps> = ({ bonus, onAddBonus, spinsAvailable, events
   const [pendingPrize, setPendingPrize] = useState(0); // Points won but not yet awarded
   const [showQuiz, setShowQuiz] = useState(false);
   const [showResult, setShowResult] = useState(false);
+  const [toast, setToast] = useState<{message: string, type: 'success' | 'error'} | null>(null);
   
   // Quiz Logic
   const [currentQuestions, setCurrentQuestions] = useState<Question[]>([]);
@@ -75,6 +76,16 @@ const Bonus: React.FC<BonusProps> = ({ bonus, onAddBonus, spinsAvailable, events
   const segments = [10, 20, 30, 40, 10, 20, 30, 40];
   const segmentColors = ['#facc15', '#fbbf24', '#ec4899', '#8b5cf6', '#facc15', '#fbbf24', '#ec4899', '#8b5cf6'];
   const sliceAngle = 360 / segments.length;
+
+  // Auto-dismiss toast
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => {
+        setToast(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
 
   const handleSpin = () => {
     if (isSpinning || spinsAvailable <= 0) return;
@@ -132,6 +143,7 @@ const Bonus: React.FC<BonusProps> = ({ bonus, onAddBonus, spinsAvailable, events
       // Step 3: Award Points
       setShowQuiz(false);
       onAddBonus(pendingPrize);
+      setToast({ message: `Hooray! You won ${pendingPrize} Bonus Points!`, type: 'success' });
       setShowResult(true);
   };
 
@@ -426,6 +438,30 @@ const Bonus: React.FC<BonusProps> = ({ bonus, onAddBonus, spinsAvailable, events
                 </div>
              </motion.div>
           </div>
+        )}
+      </AnimatePresence>
+
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, y: 20, x: '-50%' }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className={`fixed bottom-8 left-1/2 z-[100] px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 font-bold text-sm min-w-[300px] justify-center backdrop-blur-md ${
+              toast.type === 'success' 
+                ? 'bg-slate-900/90 text-white border border-slate-700' 
+                : 'bg-red-500/90 text-white border border-red-400'
+            }`}
+          >
+             {toast.type === 'success' ? (
+               <CircleCheck size={18} className="text-green-400" />
+             ) : (
+               <CircleAlert size={18} className="text-white" />
+             )}
+             {toast.message}
+          </motion.div>
         )}
       </AnimatePresence>
 

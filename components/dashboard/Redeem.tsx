@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CircleCheck, CircleAlert, CircleX } from 'lucide-react';
@@ -209,8 +210,10 @@ const Redeem: React.FC<RedeemProps> = ({ onRedeem, userBonus }) => {
                     <CircleX size={48} />
                   </motion.div>
                   <h3 className="text-2xl font-bold text-slate-900 mb-2">Failed!</h3>
-                  <p className="text-slate-500 text-center mb-6">
-                    Something went wrong processing your request. Please try again.
+                  <p className="text-slate-500 text-center mb-6 px-4">
+                    {userBonus < selectedItem.cost 
+                      ? "You don't have enough bonus points to redeem this item." 
+                      : "Something went wrong processing your request. Please try again."}
                   </p>
                   <Button variant="secondary" onClick={() => setRedeemStatus('idle')}>Try Again</Button>
                 </motion.div>

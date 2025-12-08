@@ -1,15 +1,25 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Music, Mic2, Briefcase, Coins, Calendar, MapPin, Twitter, Instagram, Facebook, ArrowUp } from 'lucide-react';
+import { ArrowRight, Coins, Calendar, MapPin, Twitter, Instagram, Facebook, ArrowUp } from 'lucide-react';
 import Button from './Button';
 
 interface LandingPageProps {
   onNavigateAuth: () => void;
+  onFeatureClick?: (section: 'redeem' | 'activities' | 'map') => void;
 }
 
-const LandingPage: React.FC<LandingPageProps> = ({ onNavigateAuth }) => {
+const LandingPage: React.FC<LandingPageProps> = ({ onNavigateAuth, onFeatureClick }) => {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCardClick = (section: 'redeem' | 'activities' | 'map') => {
+    if (onFeatureClick) {
+      onFeatureClick(section);
+    } else {
+      onNavigateAuth();
+    }
   };
 
   const features = [
@@ -19,7 +29,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateAuth }) => {
       title: "Earn & Redeem",
       desc: "Collect bonus as you participate in events and unlock exclusive cool rewards!",
       action: "Start Earning",
-      color: "text-yellow-600"
+      color: "text-yellow-600",
+      target: 'redeem' as const
     },
     {
       icon: <Calendar size={32} className="text-blue-600" />,
@@ -27,7 +38,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateAuth }) => {
       title: "Event Schedule",
       desc: "Stay updated with the timeline. Never miss your favorite competitions and shows.",
       action: "View Timeline",
-      color: "text-blue-600"
+      color: "text-blue-600",
+      target: 'activities' as const
     },
     {
       icon: <MapPin size={32} className="text-purple-600" />,
@@ -35,7 +47,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateAuth }) => {
       title: "Interactive Map",
       desc: "Navigate the fest effortlessly. Find every venue and stall right at your fingertips.",
       action: "Explore Map",
-      color: "text-purple-600"
+      color: "text-purple-600",
+      target: 'map' as const
     }
   ];
 
@@ -76,53 +89,24 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateAuth }) => {
       </nav>
 
       {/* Hero Section */}
-      <main className="relative z-10 flex flex-col items-center text-center mt-8 md:mt-16 px-4 max-w-5xl mx-auto">
+      <main className="relative z-10 flex flex-col items-center text-center mt-8 md:mt-12 px-4 max-w-7xl mx-auto w-full">
         
-        {/* Logos Row */}
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="flex items-center justify-center gap-4 md:gap-8 mb-8 opacity-80"
-        >
-          {/* Mock Logos */}
-           <div className="w-12 h-12 md:w-16 md:h-16 rounded-full border-2 border-slate-200 flex items-center justify-center bg-white shadow-sm">
-              <span className="text-[0.6rem] font-bold text-center leading-tight text-slate-600">COLLEGE<br/>LOGO</span>
-           </div>
-           
-           <div className="flex flex-col items-center">
-             <div className="w-10 h-10 md:w-14 md:h-14 rounded-full border-2 border-brand-dark/10 flex items-center justify-center bg-slate-50 mb-1">
-                <span className="text-xl">🏛️</span>
-             </div>
-             <div className="flex flex-col items-center">
-                <h3 className="text-xl md:text-2xl font-bold text-brand-dark/80 font-serif">Birlotsav</h3>
-                <span className="text-[0.6rem] md:text-xs tracking-[0.3em] uppercase text-slate-500 font-semibold">PRESENTS</span>
-             </div>
-           </div>
-
-           <div className="w-12 h-12 md:w-16 md:h-16 rounded-full border-2 border-slate-200 flex items-center justify-center bg-white shadow-sm">
-              <span className="text-[0.6rem] font-bold text-center leading-tight text-slate-600">ARTS<br/>CIRCLE</span>
-           </div>
-        </motion.div>
-
-        {/* Main Brand Graphic Area */}
+        {/* Main Banner Image - Replaced text with Image */}
         <motion.div
-           initial={{ scale: 0.8, opacity: 0 }}
-           animate={{ scale: 1, opacity: 1 }}
-           transition={{ delay: 0.4, type: "spring", bounce: 0.5 }}
-           className="relative mb-6"
+           initial={{ scale: 0.95, opacity: 0, y: 20 }}
+           animate={{ scale: 1, opacity: 1, y: 0 }}
+           transition={{ delay: 0.2, duration: 0.8 }}
+           className="w-full flex justify-center mb-8 relative"
         >
-            <div className="relative">
-              <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-sm font-bold text-slate-400 tracking-widest bg-white px-2 z-10">MPOWER</span>
-              <h1 className="text-6xl md:text-9xl font-extrabold tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-brand-pink via-brand-purple to-brand-blue-500 relative z-0 drop-shadow-sm">
-                YOUTHOPIA
-              </h1>
-              {/* Decorative elements simulating the confetti/drawing in the image */}
-              <Music className="absolute -top-4 -right-4 text-brand-purple w-8 h-8 rotate-12 animate-bounce" />
-              <Mic2 className="absolute bottom-2 -left-4 text-brand-pink w-8 h-8 -rotate-12" />
-              <div className="absolute -bottom-2 w-full text-center text-xs md:text-sm text-brand-orange tracking-[0.5em] font-medium uppercase">
-                Unplug. Unleash. Unmind
-              </div>
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl max-w-5xl w-full bg-white">
+                <img 
+                  src="/landing-hero.png" 
+                  alt="Birlotsav Presents MPOWER YOUTHOPIA" 
+                  className="w-full h-auto object-contain"
+                  onError={(e) => {
+                      e.currentTarget.src = "https://images.unsplash.com/photo-1459749411177-287ce35e8ead?auto=format&fit=crop&w=1200&q=80";
+                  }}
+                />
             </div>
         </motion.div>
 
@@ -130,8 +114,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateAuth }) => {
         <motion.p 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
-          className="text-slate-500 text-base md:text-lg max-w-2xl mt-10 leading-relaxed"
+          transition={{ delay: 0.5 }}
+          className="text-slate-500 text-base md:text-xl max-w-2xl mt-4 leading-relaxed"
         >
           Welcome to <strong className="text-slate-900">Youthopia</strong>! A festival buzzing with excitement. 
           From dance duels to business pitches, discover your potential and celebrate with us.
@@ -141,7 +125,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateAuth }) => {
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
+          transition={{ delay: 0.6 }}
           className="flex flex-col md:flex-row gap-4 mt-10 w-full md:w-auto"
         >
           <Button variant="dark" onClick={onNavigateAuth} className="px-8 py-4 text-base md:text-lg">
@@ -209,7 +193,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateAuth }) => {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: idx * 0.1 }}
                 whileHover={{ y: -10 }}
-                className="bg-white rounded-3xl p-8 shadow-xl shadow-slate-200/50 border border-slate-100 flex flex-col items-center text-center group"
+                onClick={() => handleCardClick(feature.target)}
+                className="bg-white rounded-3xl p-8 shadow-xl shadow-slate-200/50 border border-slate-100 flex flex-col items-center text-center group cursor-pointer"
              >
                 <div className={`w-20 h-20 rounded-full ${feature.bg} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
                   {feature.icon}

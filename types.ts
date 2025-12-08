@@ -51,4 +51,5 @@ export interface EventData {
   isTeamEvent?: boolean;
   minMembers?: number;
   maxMembers?: number;
+  points?: number;
 }

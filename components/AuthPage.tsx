@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Phone, Lock, Eye, EyeOff, User, GraduationCap, Building, Layers, Info, ShieldCheck, Check, AlertCircle } from 'lucide-react';
@@ -8,7 +7,7 @@ import { AuthState, Gender, UserData } from '../types';
 
 interface AuthPageProps {
   onBack: () => void;
-  onLogin: (data?: UserData) => void;
+  onLogin: (data?: UserData, initialBonus?: number) => void;
 }
 
 const AuthPage: React.FC<AuthPageProps> = ({ onBack, onLogin }) => {
@@ -112,7 +111,8 @@ const AuthPage: React.FC<AuthPageProps> = ({ onBack, onLogin }) => {
                 age: formData.age,
                 gender: formData.gender,
                 password: formData.password, // Storing simply for this mock auth
-                role: 'student'
+                role: 'student',
+                bonus: 5 // Store initial bonus for persistence
             };
             localStorage.setItem(storageKey, JSON.stringify(newUser));
             
@@ -126,7 +126,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onBack, onLogin }) => {
             if (storedData) {
                 const user = JSON.parse(storedData);
                 if (user.password === formData.password) {
-                    onLogin(user);
+                    onLogin(user, user.bonus || 0);
                 } else {
                     setError("Incorrect password. Please try again.");
                 }
@@ -427,7 +427,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onBack, onLogin }) => {
                     +5 Welcome Bonus Awarded!
                   </motion.div>
 
-                  <Button type="button" onClick={() => onLogin({...formData, role: 'student'})} fullWidth variant="amber" shape="pill" className="text-lg font-bold py-4">
+                  <Button type="button" onClick={() => onLogin({...formData, role: 'student'}, 5)} fullWidth variant="amber" shape="pill" className="text-lg font-bold py-4">
                     Grab Your VISA
                   </Button>
 

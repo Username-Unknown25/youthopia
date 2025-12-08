@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import SplashScreen from './components/SplashScreen';
@@ -13,10 +12,12 @@ import { ViewState, UserData } from './types';
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<ViewState>('splash');
   const [user, setUser] = useState<UserData | null>(null);
+  const [initialBonus, setInitialBonus] = useState(0);
 
-  const handleLogin = (userData?: UserData) => {
+  const handleLogin = (userData?: UserData, bonus: number = 0) => {
     if (userData) {
       setUser(userData);
+      setInitialBonus(bonus);
       // Role handling is done in renderView
       setCurrentView('dashboard');
     }
@@ -89,7 +90,7 @@ const App: React.FC = () => {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.4 }}
           >
-             <StudentDashboard user={user} onLogout={() => setCurrentView('landing')} />
+             <StudentDashboard user={user} onLogout={() => setCurrentView('landing')} initialBonus={initialBonus} />
           </motion.div>
         );
       default:

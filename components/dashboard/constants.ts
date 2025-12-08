@@ -39,7 +39,8 @@ export const events: EventData[] = [
     image: IMAGES.fashion,
     isTeamEvent: true,
     minMembers: 8,
-    maxMembers: 12
+    maxMembers: 12,
+    points: 0
   },
   {
     id: "14",
@@ -59,7 +60,8 @@ export const events: EventData[] = [
       "Any type of vulgarity and obscenity during the event leads to disqualification and negative marking.",
       "Judge's decisions will be the final and binding."
     ],
-    image: IMAGES.speaker
+    image: IMAGES.speaker,
+    points: 0
   },
   {
     id: "7",
@@ -83,7 +85,8 @@ export const events: EventData[] = [
     image: IMAGES.music,
     isTeamEvent: true,
     minMembers: 4,
-    maxMembers: 6
+    maxMembers: 6,
+    points: 0
   },
   {
     id: "11",
@@ -104,7 +107,8 @@ export const events: EventData[] = [
       "Age Limit - 16 to 30 Years",
       "N.C.P allowed"
     ],
-    image: IMAGES.dance
+    image: IMAGES.dance,
+    points: 0
   },
   {
     id: "17",
@@ -128,14 +132,15 @@ export const events: EventData[] = [
     image: IMAGES.fun,
     isTeamEvent: true,
     minMembers: 2,
-    maxMembers: 2
+    maxMembers: 2,
+    points: 0
   },
   {
     id: "34",
-    title: "Dance Mania (Dance Therapy)",
+    title: "Dance Therapy",
     date: "Nov 23 & 24",
     time: "All Day",
-    loc: "Dance Studio",
+    loc: "Badminton Hall",
     category: "Engagement",
     imageColor: "from-pink-400 to-rose-400",
     quote: "Move your body, heal your soul.",
@@ -145,14 +150,15 @@ export const events: EventData[] = [
       "Follow the instructor.",
       "Feel the rhythm!"
     ],
-    image: IMAGES.dance
+    image: IMAGES.dance,
+    points: 70
   },
   {
     id: "23",
-    title: "Dot-to-Thought",
+    title: "Thinking Outside the Box",
     date: "Nov 23 & 24",
     time: "All Day",
-    loc: "Lounge Area",
+    loc: "Student Parking",
     category: "Engagement",
     imageColor: "from-indigo-400 to-purple-400",
     quote: "Think outside the box.",
@@ -162,7 +168,8 @@ export const events: EventData[] = [
       "Time limit applies.",
       "Have fun!"
     ],
-    image: IMAGES.tech
+    image: IMAGES.tech,
+    points: 30
   },
   {
     id: "8",
@@ -184,7 +191,8 @@ export const events: EventData[] = [
     image: IMAGES.tech,
     isTeamEvent: true,
     minMembers: 2,
-    maxMembers: 2
+    maxMembers: 2,
+    points: 0
   },
   {
     id: "19",
@@ -203,7 +211,8 @@ export const events: EventData[] = [
       "Reference material is not permitted.",
       "Judges' decisions are final and binding."
     ],
-    image: IMAGES.art
+    image: IMAGES.art,
+    points: 0
   },
   {
     id: "16",
@@ -221,14 +230,15 @@ export const events: EventData[] = [
       "Any use of vulgarity or obscenity during the event will result in disqualification and negative marking.",
       "Judges' decisions are final and binding."
     ],
-    image: IMAGES.writing
+    image: IMAGES.writing,
+    points: 0
   },
   {
     id: "32",
     title: "Joy of Journaling",
     date: "Nov 23 & 24",
     time: "All Day",
-    loc: "Quiet Zone",
+    loc: "IT 002",
     category: "Engagement",
     imageColor: "from-amber-400 to-orange-400",
     quote: "Write it down, let it go.",
@@ -238,14 +248,15 @@ export const events: EventData[] = [
       "Be honest with yourself.",
       "Keep it private or share."
     ],
-    image: IMAGES.writing
+    image: IMAGES.writing,
+    points: 20
   },
   {
     id: "31",
-    title: "KYC – Know Your Conflict",
+    title: "KYC",
     date: "Nov 23 & 24",
     time: "All Day",
-    loc: "Workshop Room 2",
+    loc: "NR 005",
     category: "Engagement",
     imageColor: "from-red-400 to-pink-400",
     quote: "Understanding is the first step.",
@@ -255,14 +266,15 @@ export const events: EventData[] = [
       "Respect others' views.",
       "Participate actively."
     ],
-    image: IMAGES.speaker
+    image: IMAGES.speaker,
+    points: 50
   },
   {
     id: "27",
-    title: "Know Your EQ",
+    title: "Mental Health Quiz",
     date: "Nov 23 & 24",
     time: "All Day",
-    loc: "Psychology Lab",
+    loc: "Between Main Building and Gymkhana",
     category: "Engagement",
     imageColor: "from-teal-400 to-emerald-400",
     quote: "Emotional intelligence is key.",
@@ -272,14 +284,15 @@ export const events: EventData[] = [
       "Get your score instantly.",
       "Learn about yourself."
     ],
-    image: IMAGES.wellness
+    image: IMAGES.wellness,
+    points: 20
   },
   {
     id: "33",
-    title: "Mindful Tools: Well-being Kit",
+    title: "Well Being Kit",
     date: "Nov 23 & 24",
     time: "All Day",
-    loc: "Wellness Booth",
+    loc: "IT to Main Building 1st Entrance",
     category: "Engagement",
     imageColor: "from-green-400 to-teal-400",
     quote: "Tools for a better you.",
@@ -289,14 +302,15 @@ export const events: EventData[] = [
       "Share with friends.",
       "Use daily."
     ],
-    image: IMAGES.wellness
+    image: IMAGES.wellness,
+    points: 100
   },
   {
     id: "24",
-    title: "Movie Screening of Zindaginama",
+    title: "Movie Screening",
     date: "Nov 23 & 24",
     time: "Every Hour",
-    loc: "Auditorium",
+    loc: "Box Office Near Old NR Entrance",
     category: "Engagement",
     imageColor: "from-purple-600 to-indigo-600",
     quote: "Cinema reflects life.",
@@ -306,7 +320,8 @@ export const events: EventData[] = [
       "Participate in the discussion.",
       "No phones allowed."
     ],
-    image: IMAGES.theatre
+    image: IMAGES.theatre,
+    points: 20
   },
   {
     id: "9",
@@ -326,7 +341,8 @@ export const events: EventData[] = [
       "Any type of vulgarity and obscenity during the event leads to Disqualification and Negative Marking.",
       "Judge's decisions will be the final and binding."
     ],
-    image: IMAGES.theatre
+    image: IMAGES.theatre,
+    points: 0
   },
   {
     id: "18",
@@ -346,7 +362,8 @@ export const events: EventData[] = [
       "Artwork must be exported as PNG/JPEG and named as EventName_CC.",
       "Judges' decisions are final and binding."
     ],
-    image: IMAGES.tech
+    image: IMAGES.tech,
+    points: 0
   },
   {
     id: "15",
@@ -368,7 +385,8 @@ export const events: EventData[] = [
       "Vulgar gestures, hate speech, or any damage to equipment will lead to disqualification and penalties for the respective contingent.",
       "The judges' decisions are final and binding."
     ],
-    image: IMAGES.music
+    image: IMAGES.music,
+    points: 0
   },
   {
     id: "5",
@@ -386,7 +404,8 @@ export const events: EventData[] = [
       "Any use of vulgarity or obscenity during the event will lead to disqualification and negative marking.",
       "Judges' decisions are final and binding."
     ],
-    image: IMAGES.art
+    image: IMAGES.art,
+    points: 0
   },
   {
     id: "1",
@@ -410,7 +429,8 @@ export const events: EventData[] = [
     image: IMAGES.speaker,
     isTeamEvent: true,
     minMembers: 2,
-    maxMembers: 2
+    maxMembers: 2,
+    points: 0
   },
   {
     id: "6",
@@ -435,7 +455,8 @@ export const events: EventData[] = [
     image: IMAGES.tech,
     isTeamEvent: true,
     minMembers: 2,
-    maxMembers: 2
+    maxMembers: 2,
+    points: 0
   },
   {
     id: "2",
@@ -459,7 +480,8 @@ export const events: EventData[] = [
     image: IMAGES.dance,
     isTeamEvent: true,
     minMembers: 6,
-    maxMembers: 10
+    maxMembers: 10,
+    points: 0
   },
   {
     id: "4",
@@ -483,7 +505,8 @@ export const events: EventData[] = [
     image: IMAGES.dance,
     isTeamEvent: true,
     minMembers: 6,
-    maxMembers: 10
+    maxMembers: 10,
+    points: 0
   },
   {
     id: "10",
@@ -507,14 +530,15 @@ export const events: EventData[] = [
     image: IMAGES.theatre,
     isTeamEvent: true,
     minMembers: 4,
-    maxMembers: 6
+    maxMembers: 6,
+    points: 0
   },
   {
     id: "37",
     title: "Seeking Help",
     date: "Nov 23 & 24",
     time: "All Day",
-    loc: "Counseling Center",
+    loc: "Student Parking / Redemption in Mpower Cell",
     category: "Engagement",
     imageColor: "from-blue-300 to-indigo-300",
     quote: "It's okay to ask for help.",
@@ -524,7 +548,8 @@ export const events: EventData[] = [
       "Safe space.",
       "Professional support."
     ],
-    image: IMAGES.wellness
+    image: IMAGES.wellness,
+    points: 0
   },
   {
     id: "12",
@@ -544,14 +569,15 @@ export const events: EventData[] = [
       "Any form of vulgarity, profanity, or obscenity will lead to disqualification.",
       "The judges' decisions are final and binding."
     ],
-    image: IMAGES.dance
+    image: IMAGES.dance,
+    points: 0
   },
   {
     id: "30",
     title: "Six Thinking Hats",
     date: "Nov 23 & 24",
     time: "All Day",
-    loc: "Discussion Room",
+    loc: "NR 009",
     category: "Engagement",
     imageColor: "from-cyan-500 to-blue-500",
     quote: "See things differently.",
@@ -561,14 +587,15 @@ export const events: EventData[] = [
       "Adopt the perspective.",
       "Solve the problem."
     ],
-    image: IMAGES.tech
+    image: IMAGES.tech,
+    points: 50
   },
   {
     id: "28",
     title: "Spin the Wheel",
     date: "Nov 23 & 24",
     time: "All Day",
-    loc: "Game Zone",
+    loc: "Student Parking",
     category: "Engagement",
     imageColor: "from-fuchsia-500 to-pink-500",
     quote: "Spin to win!",
@@ -578,7 +605,8 @@ export const events: EventData[] = [
       "Complete the challenge.",
       "Win a prize."
     ],
-    image: IMAGES.fun
+    image: IMAGES.fun,
+    points: 50
   },
   {
     id: "20",
@@ -595,14 +623,15 @@ export const events: EventData[] = [
       "3 minutes time limit.",
       "Entertain the crowd."
     ],
-    image: IMAGES.fun
+    image: IMAGES.fun,
+    points: 0
   },
   {
     id: "29",
     title: "Stroop Effect",
     date: "Nov 23 & 24",
     time: "All Day",
-    loc: "Cognition Lab",
+    loc: "New Building Before NAMED",
     category: "Engagement",
     imageColor: "from-orange-400 to-red-400",
     quote: "Challenge your brain.",
@@ -612,7 +641,8 @@ export const events: EventData[] = [
       "Beat the timer.",
       "Focus hard!"
     ],
-    image: IMAGES.tech
+    image: IMAGES.tech,
+    points: 30
   },
   {
     id: "3",
@@ -632,14 +662,15 @@ export const events: EventData[] = [
       "Any type of vulgarity and obscenity during the event leads to Disqualification and Negative Marking.",
       "Judge's decisions will be the final and binding."
     ],
-    image: IMAGES.theatre
+    image: IMAGES.theatre,
+    points: 0
   },
   {
     id: "21",
-    title: "Wall of Grati-Notes (Gratitude Wall)",
+    title: "Gratitude Wall",
     date: "Nov 23 & 24",
     time: "All Day",
-    loc: "Main Entrance",
+    loc: "Student Parking",
     category: "Engagement",
     imageColor: "from-yellow-400 to-amber-400",
     quote: "Gratitude turns what we have into enough.",
@@ -649,14 +680,15 @@ export const events: EventData[] = [
       "Stick it on the wall.",
       "Spread positivity."
     ],
-    image: "https://i.pinimg.com/736x/8a/a0/0b/8aa00b41113945952467385966c43426.jpg"
+    image: "https://images.unsplash.com/photo-1517816428103-7dc308d3d1b1?auto=format&fit=crop&w=1000&q=80",
+    points: 30
   },
   {
     id: "25",
     title: "Wall Painting",
     date: "Nov 23 & 24",
     time: "All Day",
-    loc: "Campus Walls",
+    loc: "[Not Listed]",
     category: "Engagement",
     imageColor: "from-teal-500 to-blue-500",
     quote: "Make your mark.",
@@ -666,14 +698,15 @@ export const events: EventData[] = [
       "Respect the theme.",
       "Have fun."
     ],
-    image: IMAGES.art
+    image: IMAGES.art,
+    points: 0
   },
   {
     id: "26",
-    title: "Wellness Checkpoint (MH Score)",
+    title: "MH Score Check",
     date: "Nov 23 & 24",
     time: "All Day",
-    loc: "Health Center",
+    loc: "[Not Listed]",
     category: "Engagement",
     imageColor: "from-green-500 to-emerald-500",
     quote: "Health is wealth.",
@@ -683,14 +716,15 @@ export const events: EventData[] = [
       "Get instant results.",
       "Consult experts if needed."
     ],
-    image: IMAGES.wellness
+    image: IMAGES.wellness,
+    points: 30
   },
   {
     id: "22",
-    title: "Word Recall Challenge",
+    title: "Memory Word Recall",
     date: "Nov 23 & 24",
     time: "All Day",
-    loc: "Memory Zone",
+    loc: "New Building / Gazebo",
     category: "Engagement",
     imageColor: "from-blue-400 to-cyan-400",
     quote: "How good is your memory?",
@@ -700,6 +734,43 @@ export const events: EventData[] = [
       "Recall as many as possible.",
       "No writing allowed."
     ],
-    image: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&w=1000&q=80"
+    image: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&w=1000&q=80",
+    points: 30
+  },
+  {
+    id: "35",
+    title: "Trash the Can'ts",
+    date: "Nov 23 & 24",
+    time: "All Day",
+    loc: "Student Parking",
+    category: "Engagement",
+    imageColor: "from-gray-500 to-slate-500",
+    quote: "Let go of negativity.",
+    description: "Write down your negative thoughts and literally trash them.",
+    rules: [
+      "Identify a negative thought.",
+      "Write it down.",
+      "Throw it in the bin."
+    ],
+    image: IMAGES.wellness,
+    points: 50
+  },
+  {
+    id: "36",
+    title: "Art Therapy / Mind Mania",
+    date: "Nov 23 & 24",
+    time: "All Day",
+    loc: "Student Parking",
+    category: "Engagement",
+    imageColor: "from-purple-400 to-pink-400",
+    quote: "Create to heal.",
+    description: "Engage in artistic activities to express feelings and relax.",
+    rules: [
+      "Be creative.",
+      "No judgment.",
+      "Enjoy the process."
+    ],
+    image: IMAGES.art,
+    points: 70
   }
 ];

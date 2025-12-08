@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -20,15 +19,16 @@ import { UserData } from '../types';
 interface StudentDashboardProps {
   onLogout: () => void;
   user: UserData | null;
+  initialBonus?: number;
 }
 
 type DashboardSection = 'me' | 'activities' | 'leaderboard' | 'bonus' | 'redeem' | 'score' | 'map' | 'help';
 
-const StudentDashboard: React.FC<StudentDashboardProps> = ({ onLogout, user }) => {
+const StudentDashboard: React.FC<StudentDashboardProps> = ({ onLogout, user, initialBonus = 0 }) => {
   const [activeSection, setActiveSection] = useState<DashboardSection>('me');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  // Initial bonus set to 0 as requested (removed default 1250)
-  const [bonus, setBonus] = useState(0);
+  // Initial bonus based on prop (e.g. 5 from registration)
+  const [bonus, setBonus] = useState(initialBonus);
   // Shared state for registered events
   const [registeredEventIds, setRegisteredEventIds] = useState<string[]>([]);
   // Track how many spins the user has consumed
@@ -246,24 +246,30 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ onLogout, user }) =
             <button
               key={tab.id}
               onClick={() => setActiveSection(tab.id as DashboardSection)}
-              className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-colors min-w-[64px] ${
+              className={`relative flex flex-col items-center gap-1 p-2 rounded-xl transition-colors min-w-[64px] ${
                 activeSection === tab.id 
                   ? 'text-brand-purple' 
                   : 'text-slate-400 hover:text-slate-600'
               }`}
             >
+              {activeSection === tab.id && (
+                <motion.div
+                  layoutId="activeBottomTabBg"
+                  className="absolute inset-0 bg-brand-purple/10 rounded-xl"
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                />
+              )}
+              
               <motion.div
                 whileTap={{ scale: 0.9 }}
-                animate={activeSection === tab.id ? { y: -2 } : { y: 0 }}
+                animate={activeSection === tab.id ? { y: -2, scale: 1.1 } : { y: 0, scale: 1 }}
+                className="relative z-10"
               >
                 {tab.icon}
               </motion.div>
-              <span className={`text-[10px] font-bold ${activeSection === tab.id ? 'opacity-100' : 'opacity-70'}`}>
+              <span className={`relative z-10 text-[10px] font-bold ${activeSection === tab.id ? 'opacity-100' : 'opacity-70'}`}>
                 {tab.label}
               </span>
-              {activeSection === tab.id && (
-                 <motion.div layoutId="activeBottomTab" className="w-1 h-1 rounded-full bg-brand-purple mt-0.5" />
-              )}
             </button>
           ))}
           

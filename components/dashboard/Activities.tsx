@@ -1,7 +1,7 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, MapPin, ChevronLeft, ChevronRight, Search, Clock, CheckCircle2, Quote, AlertCircle, ArrowLeft, Users, AlertTriangle, ArrowUpDown, X } from 'lucide-react';
+import { Calendar, MapPin, ChevronLeft, ChevronRight, Search, Clock, CheckCircle2, Quote, AlertCircle, ArrowLeft, Users, AlertTriangle, ArrowUpDown, X, CircleCheck, CircleAlert } from 'lucide-react';
 import Button from '../Button';
 import Input from '../Input';
 import { EventData } from '../../types';
@@ -17,6 +17,8 @@ interface ActivitiesProps {
     onRegister: (eventId: string) => void;
 }
 
+const PLACEHOLDER_IMAGE = "https://images.unsplash.com/photo-1533174072545-e8d4aa97edf9?auto=format&fit=crop&w=1000&q=80";
+
 const Activities: React.FC<ActivitiesProps> = ({ registeredEventIds, onRegister }) => {
   const [activeFilter, setActiveFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
@@ -26,6 +28,7 @@ const Activities: React.FC<ActivitiesProps> = ({ registeredEventIds, onRegister 
   const [selectedEvent, setSelectedEvent] = useState<EventData | null>(null);
   const [registeringState, setRegisteringState] = useState<'idle' | 'loading' | 'success'>('idle');
   const [selectedEmoji, setSelectedEmoji] = useState<string | null>(null);
+  const [toast, setToast] = useState<{message: string, type: 'success' | 'error'} | null>(null);
 
   // Team Registration State
   const [teamSize, setTeamSize] = useState<number>(0);
@@ -36,6 +39,16 @@ const Activities: React.FC<ActivitiesProps> = ({ registeredEventIds, onRegister 
 
   // Mock database removed
   const ALREADY_REGISTERED_IDS: string[] = []; 
+
+  // Auto-dismiss toast
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => {
+        setToast(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
 
   // Extract unique dates for filter
   const uniqueDates = useMemo(() => {
@@ -168,6 +181,7 @@ const Activities: React.FC<ActivitiesProps> = ({ registeredEventIds, onRegister 
     setTimeout(() => {
         onRegister(selectedEvent.id);
         setRegisteringState('success');
+        setToast({ message: `Successfully registered for ${selectedEvent.title}!`, type: 'success' });
     }, 1500);
   };
 
@@ -217,7 +231,7 @@ const Activities: React.FC<ActivitiesProps> = ({ registeredEventIds, onRegister 
              transition={{ duration: 0.8 }}
              className="absolute inset-0 z-0"
            >
-              <img src={selectedEvent.image} alt="" className="w-full h-full object-cover" />
+              <img src={selectedEvent.image || PLACEHOLDER_IMAGE} alt="" className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-black/60" /> {/* Darken for text readability */}
            </motion.div>
            
@@ -238,6 +252,18 @@ const Activities: React.FC<ActivitiesProps> = ({ registeredEventIds, onRegister 
              >
                "{selectedEvent.quote}"
              </motion.h2>
+             
+             {/* Points Display in Header */}
+             {(selectedEvent.points || 0) > 0 && (
+                <motion.div 
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.4, type: "spring" }}
+                  className="mt-4 bg-brand-yellow/90 backdrop-blur-md text-brand-dark px-4 py-1.5 rounded-full text-sm font-bold shadow-lg flex items-center gap-2"
+                >
+                   <span>+{selectedEvent.points} Bonus</span>
+                </motion.div>
+             )}
            </div>
            
            <div className="absolute bottom-0 left-0 w-full h-16 bg-gradient-to-t from-white to-transparent z-10" />
@@ -466,7 +492,7 @@ const Activities: React.FC<ActivitiesProps> = ({ registeredEventIds, onRegister 
 
   // --- LIST VIEW RENDER ---
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 relative">
       {/* Header Section */}
       <div>
         <h2 className="text-3xl font-extrabold text-slate-900">Activity Passport</h2>
@@ -608,7 +634,7 @@ const Activities: React.FC<ActivitiesProps> = ({ registeredEventIds, onRegister 
                 {/* Image Header */}
                 <div className="h-48 overflow-hidden relative">
                     <img 
-                        src={evt.image} 
+                        src={evt.image || PLACEHOLDER_IMAGE} 
                         alt={evt.title} 
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     />
@@ -624,6 +650,13 @@ const Activities: React.FC<ActivitiesProps> = ({ registeredEventIds, onRegister 
                     {isRegistered && (
                         <div className="absolute top-3 right-3 bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1 shadow-sm">
                         <CheckCircle2 size={12} /> REGISTERED
+                        </div>
+                    )}
+                    
+                    {/* Points Badge on Card */}
+                    {(evt.points || 0) > 0 && !isRegistered && (
+                        <div className="absolute top-3 right-3 bg-brand-yellow text-slate-900 text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1 shadow-sm">
+                           +{evt.points} Bonus
                         </div>
                     )}
                 </div>
@@ -700,6 +733,30 @@ const Activities: React.FC<ActivitiesProps> = ({ registeredEventIds, onRegister 
              </Button>
          </div>
       )}
+
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, y: 20, x: '-50%' }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className={`fixed bottom-8 left-1/2 z-[100] px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 font-bold text-sm min-w-[300px] justify-center backdrop-blur-md ${
+              toast.type === 'success' 
+                ? 'bg-slate-900/90 text-white border border-slate-700' 
+                : 'bg-red-500/90 text-white border border-red-400'
+            }`}
+          >
+             {toast.type === 'success' ? (
+               <CircleCheck size={18} className="text-green-400" />
+             ) : (
+               <CircleAlert size={18} className="text-white" />
+             )}
+             {toast.message}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
