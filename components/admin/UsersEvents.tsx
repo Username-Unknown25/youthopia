@@ -4,22 +4,17 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Users, Calendar, Search, Filter, MoreVertical, Edit, Trash2, Plus, X, Save } from 'lucide-react';
 import Input from '../Input';
 import Button from '../Button';
-import { events as initialEvents } from '../dashboard/constants';
+// No mock events import
+const initialEvents: any[] = [];
 
 const UsersEvents: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'users' | 'events'>('users');
   const [searchQuery, setSearchQuery] = useState('');
   
-  // State for Users
-  const [users, setUsers] = useState([
-    { id: 'YTH-001', name: 'Alex Student', school: 'Birla College', class: 'XII', stream: 'Science', points: 1250 },
-    { id: 'YTH-002', name: 'Sarah Jones', school: 'Modern High', class: 'XI', stream: 'Arts', points: 2450 },
-    { id: 'YTH-003', name: 'Mike Tyson', school: 'St. Xaviers', class: 'XII', stream: 'Commerce', points: 2100 },
-    { id: 'YTH-004', name: 'Priya R.', school: 'DPS', class: 'XI', stream: 'Science', points: 1100 },
-    { id: 'YTH-005', name: 'Rahul K.', school: 'KV No.1', class: 'XII', stream: 'Science', points: 980 },
-  ]);
+  // State for Users - Cleared
+  const [users, setUsers] = useState<{ id: string, name: string, school: string, class: string, stream: string, bonus: number }[]>([]);
 
-  // State for Events
+  // State for Events - Cleared
   const [eventsList, setEventsList] = useState(initialEvents);
 
   // Modal States
@@ -40,7 +35,7 @@ const UsersEvents: React.FC = () => {
 
   const handleAddUser = () => {
     const id = `YTH-00${users.length + 1}`;
-    setUsers(prev => [{ id, ...newUser, points: 0 }, ...prev]);
+    setUsers(prev => [{ id, ...newUser, bonus: 0 }, ...prev]);
     setShowUserModal(false);
     setNewUser({ name: '', school: '', class: '', stream: '' });
   };
@@ -148,7 +143,7 @@ const UsersEvents: React.FC = () => {
                     <th className="p-4">Name</th>
                     <th className="p-4 hidden md:table-cell">School</th>
                     <th className="p-4 hidden md:table-cell">Class/Stream</th>
-                    <th className="p-4">Points</th>
+                    <th className="p-4">Bonus</th>
                     <th className="p-4 text-right pr-6">Actions</th>
                  </tr>
               </thead>
@@ -166,7 +161,7 @@ const UsersEvents: React.FC = () => {
                        <td className="p-4 font-bold text-slate-800">{user.name}</td>
                        <td className="p-4 hidden md:table-cell text-slate-600">{user.school}</td>
                        <td className="p-4 hidden md:table-cell text-slate-500">{user.class} - {user.stream}</td>
-                       <td className="p-4 font-bold text-brand-purple">{user.points}</td>
+                       <td className="p-4 font-bold text-brand-purple">{user.bonus}</td>
                        <td className="p-4 text-right pr-6 flex justify-end gap-2">
                           <button className="p-2 hover:bg-slate-200 rounded-lg text-slate-500"><Edit size={16} /></button>
                           <button onClick={() => handleDeleteUser(user.id)} className="p-2 hover:bg-red-100 rounded-lg text-red-500"><Trash2 size={16} /></button>

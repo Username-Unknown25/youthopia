@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, MapPin, ChevronLeft, ChevronRight, Search, Clock, CheckCircle2, Quote, AlertCircle, ArrowLeft, Users, UserPlus, AlertTriangle, ArrowUpDown, X, Filter } from 'lucide-react';
+import { Calendar, MapPin, ChevronLeft, ChevronRight, Search, Clock, CheckCircle2, Quote, AlertCircle, ArrowLeft, Users, AlertTriangle, ArrowUpDown, X } from 'lucide-react';
 import Button from '../Button';
 import Input from '../Input';
 import { EventData } from '../../types';
@@ -34,8 +34,8 @@ const Activities: React.FC<ActivitiesProps> = ({ registeredEventIds, onRegister 
 
   const filters = ['All', 'Registered', 'Completed', 'Engagement', 'Intercollegiate'];
 
-  // Mock database of already registered IDs to simulate the validation constraint
-  const ALREADY_REGISTERED_IDS = ['YTH-2025-999', 'YTH-2025-888']; 
+  // Mock database removed
+  const ALREADY_REGISTERED_IDS: string[] = []; 
 
   // Extract unique dates for filter
   const uniqueDates = useMemo(() => {
@@ -78,18 +78,19 @@ const Activities: React.FC<ActivitiesProps> = ({ registeredEventIds, onRegister 
 
   const handleRegisterClick = (e: React.MouseEvent, event: EventData) => {
     e.stopPropagation();
-    if (registeredEventIds.includes(event.id)) return;
+    // Allow opening details even if registered
     
     setSelectedEvent(event);
-    setRegisteringState('idle');
+    setRegisteringState('idle'); // Reset state, though we might show success view immediately if registered
     setSelectedEmoji(null);
     setTeamError(null);
     
-    // Reset Team Form
-    if (event.isTeamEvent && event.minMembers) {
-      setTeamSize(event.minMembers);
+    // Reset Team Form with defaults
+    if (event.isTeamEvent) {
+      const min = event.minMembers || 2;
+      setTeamSize(min);
       // Initialize with empty slots
-      setTeamMembers(Array(event.minMembers).fill({ name: '', id: '' }));
+      setTeamMembers(Array(min).fill({ name: '', id: '' }));
     }
   };
 
@@ -197,6 +198,9 @@ const Activities: React.FC<ActivitiesProps> = ({ registeredEventIds, onRegister 
 
   // --- DETAIL VIEW RENDER ---
   if (selectedEvent) {
+    const isRegistered = registeredEventIds.includes(selectedEvent.id);
+    const showSuccessView = registeringState === 'success' || isRegistered;
+
     return (
       <motion.div 
         initial={{ opacity: 0, x: 50 }}
@@ -302,7 +306,7 @@ const Activities: React.FC<ActivitiesProps> = ({ registeredEventIds, onRegister 
             </div>
 
             {/* TEAM REGISTRATION FORM */}
-            {selectedEvent.isTeamEvent && registeringState !== 'success' && (
+            {selectedEvent.isTeamEvent && !showSuccessView && (
                <div className="bg-brand-purple/5 border border-brand-purple/20 rounded-3xl p-6 md:p-8 mb-10">
                   <div className="flex items-center gap-3 mb-6">
                     <div className="p-2 bg-brand-purple text-white rounded-lg"><Users size={24} /></div>
@@ -322,8 +326,8 @@ const Activities: React.FC<ActivitiesProps> = ({ registeredEventIds, onRegister 
                        onChange={(e) => handleTeamSizeChange(Number(e.target.value))}
                      >
                         {Array.from(
-                          { length: (selectedEvent.maxMembers || 0) - (selectedEvent.minMembers || 0) + 1 }, 
-                          (_, i) => (selectedEvent.minMembers || 0) + i
+                          { length: (selectedEvent.maxMembers || 12) - (selectedEvent.minMembers || 2) + 1 }, 
+                          (_, i) => (selectedEvent.minMembers || 2) + i
                         ).map(num => (
                           <option key={num} value={num}>{num} Members</option>
                         ))}
@@ -379,7 +383,7 @@ const Activities: React.FC<ActivitiesProps> = ({ registeredEventIds, onRegister 
 
             {/* Footer Action */}
             <div className="flex flex-col items-center gap-4 pt-4 border-t border-slate-100">
-               {registeringState === 'success' ? (
+               {showSuccessView ? (
                   <div className="flex flex-col items-center gap-6 w-full">
                       <motion.div 
                         initial={{ scale: 0.8, opacity: 0 }}
@@ -646,7 +650,8 @@ const Activities: React.FC<ActivitiesProps> = ({ registeredEventIds, onRegister 
                         variant={isRegistered ? "white" : "secondary"}
                         fullWidth 
                         className={`py-2 text-sm font-bold shadow-md ${isRegistered ? 'border-green-200 text-green-600' : 'shadow-yellow-500/10'}`}
-                        disabled={isRegistered}
+                        // ENABLED FOR VIEW DETAILS
+                        disabled={false}
                         onClick={(e) => handleRegisterClick(e, evt)}
                     >
                         {isRegistered ? 'View Details' : (evt.isTeamEvent ? 'Register Team' : 'Register Now')}
@@ -662,7 +667,7 @@ const Activities: React.FC<ActivitiesProps> = ({ registeredEventIds, onRegister 
            animate={{ opacity: 1 }}
            className="text-center py-20"
         >
-           <p className="text-slate-400">No events found matching your criteria.</p>
+           <p className="text-slate-400">No events found.</p>
            {hasActiveFilters && (
                <button onClick={resetFilters} className="text-brand-purple font-bold text-sm mt-2 hover:underline">
                   Clear Filters

@@ -1,12 +1,14 @@
+
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Edit2, Trash2, Calendar, MapPin, Clock } from 'lucide-react';
 import Button from '../Button';
 import Input from '../Input';
-import { events as initialEvents } from '../dashboard/constants';
+// No initial events
+const initialEvents: any[] = [];
 
 const Events: React.FC = () => {
-  const [eventsList, setEventsList] = useState(initialEvents.slice(0, 8)); // Showing a subset for UI clarity
+  const [eventsList, setEventsList] = useState(initialEvents); 
   const [showAddModal, setShowAddModal] = useState(false);
   const [newEvent, setNewEvent] = useState({ title: '', category: 'Intercollegiate', date: '', loc: '' });
 
@@ -46,44 +48,50 @@ const Events: React.FC = () => {
          </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-         <AnimatePresence>
-            {eventsList.map(evt => (
-               <motion.div
-                  key={evt.id}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  layout
-                  className="bg-[#111] border border-white/10 rounded-2xl overflow-hidden group hover:border-yellow-500/50 transition-colors"
-               >
-                  <div className={`h-32 bg-gradient-to-r ${evt.imageColor} relative`}>
-                     <div className="absolute top-2 right-2 flex gap-2">
-                        <button className="p-2 bg-black/50 text-white rounded-lg hover:bg-black/70 backdrop-blur-md">
-                           <Edit2 size={14} />
-                        </button>
-                        <button 
-                           onClick={() => handleDelete(evt.id)}
-                           className="p-2 bg-red-500/50 text-white rounded-lg hover:bg-red-600/70 backdrop-blur-md"
-                        >
-                           <Trash2 size={14} />
-                        </button>
-                     </div>
-                     <span className="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] font-bold px-2 py-1 rounded backdrop-blur-md">
-                        {evt.category}
-                     </span>
-                  </div>
-                  <div className="p-4">
-                     <h3 className="font-bold text-white mb-2 line-clamp-1">{evt.title}</h3>
-                     <div className="space-y-1 text-xs text-slate-400">
-                        <div className="flex items-center gap-2"><Calendar size={12} /> {evt.date}</div>
-                        <div className="flex items-center gap-2"><MapPin size={12} /> {evt.loc}</div>
-                     </div>
-                  </div>
-               </motion.div>
-            ))}
-         </AnimatePresence>
-      </div>
+      {eventsList.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <AnimatePresence>
+                {eventsList.map(evt => (
+                <motion.div
+                    key={evt.id}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    layout
+                    className="bg-[#111] border border-white/10 rounded-2xl overflow-hidden group hover:border-yellow-500/50 transition-colors"
+                >
+                    <div className={`h-32 bg-gradient-to-r ${evt.imageColor} relative`}>
+                        <div className="absolute top-2 right-2 flex gap-2">
+                            <button className="p-2 bg-black/50 text-white rounded-lg hover:bg-black/70 backdrop-blur-md">
+                            <Edit2 size={14} />
+                            </button>
+                            <button 
+                            onClick={() => handleDelete(evt.id)}
+                            className="p-2 bg-red-500/50 text-white rounded-lg hover:bg-red-600/70 backdrop-blur-md"
+                            >
+                            <Trash2 size={14} />
+                            </button>
+                        </div>
+                        <span className="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] font-bold px-2 py-1 rounded backdrop-blur-md">
+                            {evt.category}
+                        </span>
+                    </div>
+                    <div className="p-4">
+                        <h3 className="font-bold text-white mb-2 line-clamp-1">{evt.title}</h3>
+                        <div className="space-y-1 text-xs text-slate-400">
+                            <div className="flex items-center gap-2"><Calendar size={12} /> {evt.date}</div>
+                            <div className="flex items-center gap-2"><MapPin size={12} /> {evt.loc}</div>
+                        </div>
+                    </div>
+                </motion.div>
+                ))}
+            </AnimatePresence>
+        </div>
+      ) : (
+          <div className="text-center py-20 text-slate-500 border border-white/5 rounded-2xl bg-[#111]">
+            No events found. Create one to get started.
+          </div>
+      )}
 
       {/* Add Event Modal */}
       {showAddModal && (

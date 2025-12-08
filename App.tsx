@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import SplashScreen from './components/SplashScreen';
@@ -17,20 +18,8 @@ const App: React.FC = () => {
     if (userData) {
       setUser(userData);
       // Role handling is done in renderView
-    } else {
-      // Default mock user if logging in directly without registration flow
-      setUser({
-        name: "Alex Student",
-        school: "Birla College of Arts",
-        class: "XII",
-        stream: "Science",
-        phone: "9876543210",
-        age: "18",
-        gender: "Male",
-        role: 'student'
-      });
+      setCurrentView('dashboard');
     }
-    setCurrentView('dashboard');
   };
 
   const renderView = () => {

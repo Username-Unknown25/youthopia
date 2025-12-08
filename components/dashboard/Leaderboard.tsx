@@ -5,42 +5,21 @@ import { Trophy, Search, Medal, Crown, Star, Zap, List, BarChart3 } from 'lucide
 import Input from '../Input';
 
 interface LeaderboardProps {
-  points?: number;
+  bonus?: number;
 }
 
 type Category = 'All' | 'Champion' | 'Expert' | 'Pro' | 'Beginner';
 type ViewMode = 'list' | 'graph';
 
-const Leaderboard: React.FC<LeaderboardProps> = ({ points = 1250 }) => {
+const Leaderboard: React.FC<LeaderboardProps> = ({ bonus = 1250 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<Category>('All');
   const [viewMode, setViewMode] = useState<ViewMode>('list');
 
   const categories: Category[] = ['All', 'Champion', 'Expert', 'Pro', 'Beginner'];
 
-  // Expanded Mock Data to cover all ranges
-  const leaders = [
-    { name: 'Sarah J.', points: 2450, school: 'Modern High' },
-    { name: 'Mike T.', points: 2100, school: 'St. Xaviers' },
-    { name: 'Alex Student', points: points, school: 'Birla College' }, // Current user
-    { name: 'Priya R.', points: 1100, school: 'DPS' },
-    { name: 'Rahul K.', points: 980, school: 'KV No.1' },
-    { name: 'John D.', points: 850, school: 'St. Marks' },
-    { name: 'Emily W.', points: 820, school: 'Greenwood High' },
-    // Experts (451 - 699)
-    { name: 'David B.', points: 650, school: 'Ryan Int.' },
-    { name: 'Fiona G.', points: 580, school: 'Heritage School' },
-    { name: 'George H.', points: 490, school: 'Lotus Valley' },
-    // Pros (301 - 450)
-    { name: 'Ian J.', points: 420, school: 'Amity' },
-    { name: 'Kelly L.', points: 380, school: 'Presidium' },
-    { name: 'Liam M.', points: 310, school: 'Goenka' },
-    // Beginners (150 - 300)
-    { name: 'Nina O.', points: 280, school: 'Tagore Int.' },
-    { name: 'Oscar P.', points: 200, school: 'Spring Dales' },
-    { name: 'Quinn R.', points: 160, school: 'Blue Bells' },
-    { name: 'Sam K.', points: 120, school: 'Public School' },
-  ];
+  // Mock Data Cleared
+  const leaders: { name: string; points: number; school: string; rank?: number; category?: Category }[] = [];
 
   // Helper to determine category
   const getCategory = (pts: number): Category => {
@@ -65,7 +44,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ points = 1250 }) => {
   const categoryCounts = useMemo(() => {
      const counts: Record<string, number> = { All: rankedLeaders.length };
      rankedLeaders.forEach(l => {
-         counts[l.category] = (counts[l.category] || 0) + 1;
+         counts[l.category!] = (counts[l.category!] || 0) + 1;
      });
      return counts;
   }, [rankedLeaders]);
@@ -200,7 +179,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ points = 1250 }) => {
             <div className="bg-slate-50 p-4 grid grid-cols-12 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-100 sticky top-0 z-10">
                <div className="col-span-2 text-center">Rank</div>
                <div className="col-span-6 md:col-span-5">Student</div>
-               <div className="col-span-4 md:col-span-3 text-right">Points</div>
+               <div className="col-span-4 md:col-span-3 text-right">Bonus</div>
                <div className="hidden md:block md:col-span-2 text-center">Tier</div>
             </div>
             
@@ -234,8 +213,8 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ points = 1250 }) => {
                         </div>
                         <div className="col-span-4 md:col-span-3 text-right font-bold text-brand-purple text-lg">{l.points}</div>
                         <div className="hidden md:flex md:col-span-2 justify-center">
-                            <span className={`text-[10px] font-bold uppercase tracking-wide px-2 py-1 rounded-md border flex items-center gap-1 ${getCategoryColor(l.category)}`}>
-                                {getCategoryIcon(l.category)}
+                            <span className={`text-[10px] font-bold uppercase tracking-wide px-2 py-1 rounded-md border flex items-center gap-1 ${getCategoryColor(l.category!)}`}>
+                                {getCategoryIcon(l.category!)}
                                 {l.category}
                             </span>
                         </div>
@@ -261,6 +240,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ points = 1250 }) => {
              exit={{ opacity: 0, scale: 0.98 }}
              className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 md:p-8 min-h-[400px] flex items-end justify-center md:justify-around gap-2 md:gap-6 overflow-x-auto pb-12"
           >
+             <div className="flex items-end justify-center md:justify-around gap-2 md:gap-6 w-full h-[250px] relative">
              {graphData.length > 0 ? graphData.map((l, index) => {
                 const heightPercentage = (l.points / maxGraphPoints) * 100;
                 const isTop3 = index < 3;
@@ -273,7 +253,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ points = 1250 }) => {
                 else if (l.name === 'Alex Student') barColor = 'bg-brand-purple';
 
                 return (
-                   <div key={l.name} className="flex flex-col items-center justify-end gap-2 group relative w-12 md:w-20 shrink-0 h-[250px]">
+                   <div key={l.name} className="flex flex-col items-center justify-end gap-2 group relative w-12 md:w-20 shrink-0 h-full">
                       {/* Points Tooltip */}
                       <motion.div 
                         initial={{ opacity: 0, y: 10 }}
@@ -314,11 +294,12 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ points = 1250 }) => {
                    </div>
                 );
              }) : (
-                <div className="w-full text-center text-slate-400 py-20 flex flex-col items-center">
+                <div className="w-full text-center text-slate-400 py-20 flex flex-col items-center absolute inset-0 justify-center">
                    <BarChart3 size={48} className="mb-4 opacity-20" />
                    <p>No data to visualize for this category.</p>
                 </div>
              )}
+             </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -329,28 +310,28 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ points = 1250 }) => {
              <div className="p-2 bg-yellow-100 text-yellow-600 rounded-lg"><Crown size={16} /></div>
              <div>
                  <div className="text-xs text-yellow-800 font-bold uppercase">Champion</div>
-                 <div className="text-xs text-yellow-600">700+ pts</div>
+                 <div className="text-xs text-yellow-600">700+ Bonus</div>
              </div>
          </div>
          <div className="bg-purple-50 p-3 rounded-xl border border-purple-100 flex items-center gap-3">
              <div className="p-2 bg-purple-100 text-purple-600 rounded-lg"><Medal size={16} /></div>
              <div>
                  <div className="text-xs text-purple-800 font-bold uppercase">Expert</div>
-                 <div className="text-xs text-purple-600">451 - 699 pts</div>
+                 <div className="text-xs text-purple-600">451 - 699 Bonus</div>
              </div>
          </div>
          <div className="bg-blue-50 p-3 rounded-xl border border-blue-100 flex items-center gap-3">
              <div className="p-2 bg-blue-100 text-blue-600 rounded-lg"><Star size={16} /></div>
              <div>
                  <div className="text-xs text-blue-800 font-bold uppercase">Pro</div>
-                 <div className="text-xs text-blue-600">301 - 450 pts</div>
+                 <div className="text-xs text-blue-600">301 - 450 Bonus</div>
              </div>
          </div>
          <div className="bg-green-50 p-3 rounded-xl border border-green-100 flex items-center gap-3">
              <div className="p-2 bg-green-100 text-green-600 rounded-lg"><Zap size={16} /></div>
              <div>
                  <div className="text-xs text-green-800 font-bold uppercase">Beginner</div>
-                 <div className="text-xs text-green-600">150 - 300 pts</div>
+                 <div className="text-xs text-green-600">150 - 300 Bonus</div>
              </div>
          </div>
       </div>

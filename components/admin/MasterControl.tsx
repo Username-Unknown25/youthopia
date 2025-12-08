@@ -27,15 +27,9 @@ const MasterControl: React.FC = () => {
   const [authError, setAuthError] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Mock Enrolled Students Generator
+  // Mock Enrolled Students Generator - Cleared
   const getMockStudents = (evtId: string): MockStudent[] => {
-    // Generate deterministic mock data based on event ID
-    const count = 5 + (parseInt(evtId) % 5); 
-    return Array.from({ length: count }, (_, i) => ({
-      id: `YTH-2025-${100 + parseInt(evtId) * 10 + i}`,
-      name: `Student ${String.fromCharCode(65 + i)}.`,
-      status: i === 0 ? 'Completed' : 'Registered' // First one usually completed for demo
-    }));
+    return [];
   };
 
   const [currentStudents, setCurrentStudents] = useState<MockStudent[]>([]);
@@ -58,7 +52,6 @@ const MasterControl: React.FC = () => {
       setAuthError(false);
     } else {
       setAuthError(true);
-      // Shake animation trigger could go here
     }
   };
 
@@ -68,14 +61,13 @@ const MasterControl: React.FC = () => {
     setPasscodeInput('');
   };
 
-  const grantPoints = (studentId: string) => {
+  const grantBonus = (studentId: string) => {
     setCurrentStudents(prev => prev.map(s => 
       s.id === studentId ? { ...s, status: 'Completed' } : s
     ));
-    // In a real app, this would make an API call to update user points
   };
 
-  const grantAllPoints = () => {
+  const grantAllBonus = () => {
     setCurrentStudents(prev => prev.map(s => ({ ...s, status: 'Completed' })));
   };
 
@@ -202,25 +194,29 @@ const MasterControl: React.FC = () => {
              </div>
 
              {/* Events Grid */}
-             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {filteredEvents.map(evt => (
-                   <motion.div
-                     key={evt.id}
-                     whileHover={{ y: -5, boxShadow: "0 10px 20px -5px rgba(0,0,0,0.1)" }}
-                     className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm cursor-pointer relative overflow-hidden group"
-                     onClick={() => handleEventClick(evt.id)}
-                   >
-                      <div className={`absolute top-0 right-0 p-2 rounded-bl-xl text-white font-bold text-xs ${evt.category === 'Intercollegiate' ? 'bg-brand-purple' : 'bg-brand-pink'}`}>
-                        ID: {evt.id}
-                      </div>
-                      <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center mb-3 text-slate-600 group-hover:bg-brand-yellow group-hover:text-slate-900 transition-colors">
-                         <Lock size={18} />
-                      </div>
-                      <h3 className="font-bold text-slate-900 leading-tight mb-1 line-clamp-1">{evt.title}</h3>
-                      <p className="text-xs text-slate-500">{evt.category}</p>
-                   </motion.div>
-                ))}
-             </div>
+             {filteredEvents.length > 0 ? (
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {filteredEvents.map(evt => (
+                    <motion.div
+                        key={evt.id}
+                        whileHover={{ y: -5, boxShadow: "0 10px 20px -5px rgba(0,0,0,0.1)" }}
+                        className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm cursor-pointer relative overflow-hidden group"
+                        onClick={() => handleEventClick(evt.id)}
+                    >
+                        <div className={`absolute top-0 right-0 p-2 rounded-bl-xl text-white font-bold text-xs ${evt.category === 'Intercollegiate' ? 'bg-brand-purple' : 'bg-brand-pink'}`}>
+                            ID: {evt.id}
+                        </div>
+                        <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center mb-3 text-slate-600 group-hover:bg-brand-yellow group-hover:text-slate-900 transition-colors">
+                            <Lock size={18} />
+                        </div>
+                        <h3 className="font-bold text-slate-900 leading-tight mb-1 line-clamp-1">{evt.title}</h3>
+                        <p className="text-xs text-slate-500">{evt.category}</p>
+                    </motion.div>
+                    ))}
+                 </div>
+             ) : (
+                 <div className="text-center py-10 text-slate-400">No events found.</div>
+             )}
           </motion.div>
         )}
       </AnimatePresence>
@@ -301,8 +297,8 @@ const MasterControl: React.FC = () => {
                     <div className="flex-1 overflow-y-auto p-6">
                        <div className="flex justify-between items-end mb-4">
                           <h3 className="font-bold text-slate-700">Enrolled Students ({currentStudents.length})</h3>
-                          <Button variant="secondary" className="text-xs py-2 h-auto" onClick={grantAllPoints}>
-                             <Trophy size={14} className="mr-1" /> Grant All Points
+                          <Button variant="secondary" className="text-xs py-2 h-auto" onClick={grantAllBonus}>
+                             <Trophy size={14} className="mr-1" /> Grant All Bonus
                           </Button>
                        </div>
 
@@ -333,10 +329,10 @@ const MasterControl: React.FC = () => {
                                             </span>
                                          ) : (
                                             <button 
-                                              onClick={() => grantPoints(student.id)}
+                                              onClick={() => grantBonus(student.id)}
                                               className="bg-brand-purple/10 hover:bg-brand-purple text-brand-purple hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
                                             >
-                                               Grant Points
+                                               Grant Bonus
                                             </button>
                                          )}
                                       </td>
@@ -344,6 +340,9 @@ const MasterControl: React.FC = () => {
                                 ))}
                              </tbody>
                           </table>
+                          {currentStudents.length === 0 && (
+                            <div className="p-8 text-center text-slate-400">No students enrolled.</div>
+                          )}
                        </div>
                     </div>
                  </motion.div>

@@ -11,10 +11,10 @@ interface RedeemItem {
 
 interface RedeemProps {
   onRedeem: (cost: number) => void;
-  userPoints: number;
+  userBonus: number;
 }
 
-const Redeem: React.FC<RedeemProps> = ({ onRedeem, userPoints }) => {
+const Redeem: React.FC<RedeemProps> = ({ onRedeem, userBonus }) => {
   const [selectedItem, setSelectedItem] = useState<RedeemItem | null>(null);
   const [redeemStatus, setRedeemStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [toast, setToast] = useState<{message: string, type: 'success' | 'error'} | null>(null);
@@ -44,7 +44,7 @@ const Redeem: React.FC<RedeemProps> = ({ onRedeem, userPoints }) => {
     // Simulate API call
     setTimeout(() => {
       // Validation check (simulating server-side check)
-      if (userPoints >= selectedItem.cost) {
+      if (userBonus >= selectedItem.cost) {
         onRedeem(selectedItem.cost);
         setRedeemStatus('success');
         
@@ -82,9 +82,9 @@ const Redeem: React.FC<RedeemProps> = ({ onRedeem, userPoints }) => {
   return (
     <div className="relative">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-bold">Redeem Points</h2>
+        <h2 className="text-3xl font-bold">Redeem Bonus</h2>
         <div className="bg-brand-yellow/10 text-brand-orange font-bold px-4 py-2 rounded-full text-sm">
-           Balance: {userPoints} pts
+           Balance: {userBonus} Bonus
         </div>
       </div>
       
@@ -95,7 +95,7 @@ const Redeem: React.FC<RedeemProps> = ({ onRedeem, userPoints }) => {
         className="grid grid-cols-2 md:grid-cols-4 gap-4"
       >
          {items.map((item, i) => {
-           const canAfford = userPoints >= item.cost;
+           const canAfford = userBonus >= item.cost;
            return (
             <motion.div 
               key={i} 
@@ -111,7 +111,7 @@ const Redeem: React.FC<RedeemProps> = ({ onRedeem, userPoints }) => {
                  {item.emoji}
                </motion.div>
                <h3 className="font-bold text-slate-800 text-sm mb-1">{item.name}</h3>
-               <div className={`font-bold text-sm mb-3 ${canAfford ? 'text-brand-purple' : 'text-slate-400'}`}>{item.cost} pts</div>
+               <div className={`font-bold text-sm mb-3 ${canAfford ? 'text-brand-purple' : 'text-slate-400'}`}>{item.cost} Bonus</div>
                <button 
                  onClick={() => canAfford && setSelectedItem(item)}
                  disabled={!canAfford}
@@ -121,7 +121,7 @@ const Redeem: React.FC<RedeemProps> = ({ onRedeem, userPoints }) => {
                      : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                  }`}
                >
-                 {canAfford ? 'Redeem' : 'Need more pts'}
+                 {canAfford ? 'Redeem' : 'Need more Bonus'}
                </button>
             </motion.div>
            );
@@ -229,7 +229,7 @@ const Redeem: React.FC<RedeemProps> = ({ onRedeem, userPoints }) => {
                   <div className="bg-slate-50 rounded-xl p-4 mb-6 flex justify-between items-center border border-slate-100">
                      <span className="text-sm font-semibold text-slate-500">Total Cost</span>
                      <span className="text-lg font-bold text-brand-purple flex items-center gap-1">
-                       {selectedItem.cost} <span className="text-xs font-normal text-slate-400">pts</span>
+                       {selectedItem.cost} <span className="text-xs font-normal text-slate-400">Bonus</span>
                      </span>
                   </div>
 

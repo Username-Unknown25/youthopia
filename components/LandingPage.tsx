@@ -17,7 +17,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateAuth }) => {
       icon: <Coins size={32} className="text-yellow-600" />,
       bg: "bg-yellow-50",
       title: "Earn & Redeem",
-      desc: "Collect points as you participate in events and unlock exclusive cool rewards!",
+      desc: "Collect bonus as you participate in events and unlock exclusive cool rewards!",
       action: "Start Earning",
       color: "text-yellow-600"
     },

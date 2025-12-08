@@ -5,20 +5,14 @@ import { Smile, Frown, Meh, Heart, Zap, Archive, Check } from 'lucide-react';
 
 const Feedback: React.FC = () => {
   const ratings = [
-    { emoji: '🔥', count: 1240, label: 'On Fire', color: 'bg-orange-100 text-orange-600' },
-    { emoji: '🤩', count: 850, label: 'Amazing', color: 'bg-yellow-100 text-yellow-600' },
-    { emoji: '😀', count: 420, label: 'Happy', color: 'bg-green-100 text-green-600' },
-    { emoji: '🙂', count: 120, label: 'Good', color: 'bg-blue-100 text-blue-600' },
-    { emoji: '😐', count: 45, label: 'Neutral', color: 'bg-slate-100 text-slate-600' },
+    { emoji: '🔥', count: 0, label: 'On Fire', color: 'bg-orange-100 text-orange-600' },
+    { emoji: '🤩', count: 0, label: 'Amazing', color: 'bg-yellow-100 text-yellow-600' },
+    { emoji: '😀', count: 0, label: 'Happy', color: 'bg-green-100 text-green-600' },
+    { emoji: '🙂', count: 0, label: 'Good', color: 'bg-blue-100 text-blue-600' },
+    { emoji: '😐', count: 0, label: 'Neutral', color: 'bg-slate-100 text-slate-600' },
   ];
 
-  const [feedItems, setFeedItems] = useState([
-    { id: 1, event: 'Pulse Parade', user: 'Mike T.', emoji: '🔥', time: '2 mins ago' },
-    { id: 2, event: 'Tech Talk', user: 'Sarah J.', emoji: '🤩', time: '5 mins ago' },
-    { id: 3, event: 'Code War', user: 'Alex S.', emoji: '😐', time: '12 mins ago' },
-    { id: 4, event: 'Art Attack', user: 'Priya R.', emoji: '😀', time: '15 mins ago' },
-    { id: 5, event: 'Debate', user: 'Rahul', emoji: '🙂', time: '20 mins ago' },
-  ]);
+  const [feedItems, setFeedItems] = useState<{id: number; event: string; user: string; emoji: string; time: string}[]>([]);
 
   const handleArchive = (id: number) => {
     setFeedItems(prev => prev.filter(item => item.id !== id));
@@ -51,17 +45,8 @@ const Feedback: React.FC = () => {
          {/* Chart Placeholder */}
          <div className="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
             <h3 className="font-bold text-slate-800 mb-6">Happiness Trend</h3>
-            <div className="h-64 flex items-end justify-between gap-2 px-4">
-               {[60, 70, 65, 80, 85, 90, 88, 92, 95].map((h, i) => (
-                 <div key={i} className="flex flex-col items-center gap-2 flex-1 group">
-                    <motion.div 
-                       initial={{ height: 0 }}
-                       animate={{ height: `${h}%` }}
-                       className="w-full bg-gradient-to-t from-brand-purple to-brand-pink rounded-t-lg opacity-80 group-hover:opacity-100 transition-opacity"
-                    />
-                    <span className="text-[10px] text-slate-400">1{i}am</span>
-                 </div>
-               ))}
+            <div className="h-64 flex items-center justify-center text-slate-300">
+               No data available
             </div>
          </div>
 

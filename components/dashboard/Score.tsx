@@ -1,9 +1,10 @@
+
 import React, { useEffect, useRef } from 'react';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 import { ClipboardList, Trophy, Star, Target } from 'lucide-react';
 
 interface ScoreProps {
-  points: number;
+  bonus: number;
 }
 
 const AnimatedCounter = ({ value }: { value: number }) => {
@@ -18,12 +19,9 @@ const AnimatedCounter = ({ value }: { value: number }) => {
   return <motion.span>{rounded}</motion.span>;
 };
 
-const Score: React.FC<ScoreProps> = ({ points }) => {
-  const scores = [
-    { title: 'Coding Challenge', score: 85, color: 'bg-blue-500' },
-    { title: 'Debate Round 1', score: 92, color: 'bg-green-500' },
-    { title: 'Quiz Prelims', score: 60, color: 'bg-yellow-500' },
-  ];
+const Score: React.FC<ScoreProps> = ({ bonus }) => {
+  // Cleared mock scores
+  const scores: { title: string; score: number; color: string }[] = [];
 
   return (
     <div className="space-y-6">
@@ -44,18 +42,18 @@ const Score: React.FC<ScoreProps> = ({ points }) => {
                  <Trophy size={16} /> Overall Standing
                </div>
                <h3 className="text-6xl font-black mb-1">
-                 <AnimatedCounter value={points} />
+                 <AnimatedCounter value={bonus} />
                </h3>
-               <p className="text-slate-400">Total Festival Points</p>
+               <p className="text-slate-400">Total Festival Bonus</p>
             </div>
             
             <div className="flex gap-4">
                 <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 text-center border border-white/10 min-w-[100px]">
-                    <div className="text-2xl font-bold text-brand-pink mb-1">#3</div>
+                    <div className="text-2xl font-bold text-brand-pink mb-1">--</div>
                     <div className="text-xs text-slate-300">Rank</div>
                 </div>
                 <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 text-center border border-white/10 min-w-[100px]">
-                    <div className="text-2xl font-bold text-brand-purple mb-1">98%</div>
+                    <div className="text-2xl font-bold text-brand-purple mb-1">--%</div>
                     <div className="text-xs text-slate-300">Accuracy</div>
                 </div>
             </div>
@@ -77,7 +75,7 @@ const Score: React.FC<ScoreProps> = ({ points }) => {
          </div>
 
          <div className="space-y-6">
-            {scores.map((item, idx) => (
+            {scores.length > 0 ? scores.map((item, idx) => (
               <div key={idx}>
                  <div className="flex justify-between mb-2">
                     <span className="font-medium text-sm text-slate-700">{item.title}</span>
@@ -100,7 +98,9 @@ const Score: React.FC<ScoreProps> = ({ points }) => {
                     </motion.div>
                  </div>
               </div>
-            ))}
+            )) : (
+              <p className="text-slate-400 text-center py-8">No performance data available yet.</p>
+            )}
          </div>
       </motion.div>
     </div>

@@ -1,11 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import { motion, Variants, useSpring, useTransform, animate, useMotionValue } from 'framer-motion';
-import { Award, Activity, User, Phone, Book, GraduationCap, Info, Calendar, Clock } from 'lucide-react';
+import { Award, User, Phone, Book, GraduationCap, Info } from 'lucide-react';
 import { UserData } from '../../types';
-import { events } from './constants';
 
 interface MeProps {
-  points: number;
+  bonus: number;
   user: UserData | null;
   registeredEventIds: string[];
 }
@@ -23,7 +22,7 @@ const AnimatedCounter = ({ value }: { value: number }) => {
   return <motion.span>{rounded}</motion.span>;
 };
 
-const Me: React.FC<MeProps> = ({ points, user, registeredEventIds }) => {
+const Me: React.FC<MeProps> = ({ bonus, user, registeredEventIds }) => {
   const container: Variants = {
     hidden: { opacity: 0 },
     show: {
@@ -50,9 +49,6 @@ const Me: React.FC<MeProps> = ({ points, user, registeredEventIds }) => {
     gender: "N/A",
     adminId: ""
   };
-
-  // Filter events based on registered IDs
-  const myEvents = events.filter(e => registeredEventIds.includes(e.id));
 
   return (
     <motion.div 
@@ -84,7 +80,7 @@ const Me: React.FC<MeProps> = ({ points, user, registeredEventIds }) => {
         </div>
         
         <motion.div 
-          key={points} 
+          key={bonus} 
           initial={{ scale: 1.2 }}
           animate={{ scale: 1 }}
           transition={{ type: "spring", stiffness: 400, damping: 10 }}
@@ -92,9 +88,9 @@ const Me: React.FC<MeProps> = ({ points, user, registeredEventIds }) => {
           className="bg-slate-900 p-4 rounded-xl text-white text-center min-w-[120px] shadow-lg shadow-slate-900/20 z-10 cursor-default"
         >
            <div className="text-3xl font-bold text-brand-yellow">
-             <AnimatedCounter value={points} />
+             <AnimatedCounter value={bonus} />
            </div>
-           <div className="text-xs uppercase tracking-wider text-slate-400">Total Points</div>
+           <div className="text-xs uppercase tracking-wider text-slate-400">Total Bonus</div>
         </motion.div>
       </motion.div>
 
@@ -130,54 +126,6 @@ const Me: React.FC<MeProps> = ({ points, user, registeredEventIds }) => {
             </div>
         </div>
       </motion.div>
-
-       <motion.div variants={item} className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
-          <h3 className="font-bold text-lg mb-4 flex items-center gap-2 text-slate-800">
-             <div className="p-2 bg-brand-pink/10 rounded-lg text-brand-pink"><Activity size={20} /></div>
-             Upcoming Registrations
-          </h3>
-          
-          {myEvents.length > 0 ? (
-             <ul className="space-y-3">
-                {myEvents.map((evt, idx) => (
-                  <motion.li 
-                    key={evt.id}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: idx * 0.1 }}
-                    className="flex flex-col md:flex-row md:items-center justify-between p-4 rounded-xl bg-slate-50 border border-slate-100 group hover:border-brand-purple/30 transition-all"
-                  >
-                     <div className="flex items-center gap-4 mb-2 md:mb-0">
-                        {/* Status Dot */}
-                        <div className={`w-3 h-3 rounded-full ${idx === 0 ? 'bg-green-500 animate-pulse' : 'bg-slate-300'}`} />
-                        <div>
-                            <span className="font-bold text-slate-800 block">{evt.title}</span>
-                            <span className="text-slate-500 text-xs flex items-center gap-2 mt-1">
-                               <Calendar size={12} /> {evt.date} <span className="w-1 h-1 bg-slate-300 rounded-full" /> <Clock size={12} /> {evt.time}
-                            </span>
-                        </div>
-                     </div>
-                     
-                     <div className="flex items-center gap-3 self-end md:self-auto">
-                        {idx === 0 && (
-                           <span className="text-[10px] font-bold uppercase tracking-wider text-green-600 bg-green-100 px-2 py-1 rounded-md">
-                             Next Up
-                           </span>
-                        )}
-                        <span className="text-xs font-medium text-slate-400 bg-white px-3 py-1 rounded-full border border-slate-100">
-                           {evt.loc}
-                        </span>
-                     </div>
-                  </motion.li>
-                ))}
-             </ul>
-          ) : (
-             <div className="text-center py-8 text-slate-400 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                <p>You haven't registered for any events yet.</p>
-                <p className="text-xs mt-1">Head over to "Activities" to start!</p>
-             </div>
-          )}
-        </motion.div>
     </motion.div>
   );
 };

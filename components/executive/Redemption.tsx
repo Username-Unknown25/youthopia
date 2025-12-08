@@ -1,13 +1,10 @@
+
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, X, Clock } from 'lucide-react';
 
 const Redemption: React.FC = () => {
-  const [requests, setRequests] = useState([
-    { id: 'RED-101', user: 'Mike T.', item: 'Headphones', cost: 2000, status: 'Pending' },
-    { id: 'RED-102', user: 'Sarah J.', item: 'Gift Voucher', cost: 1500, status: 'Pending' },
-    { id: 'RED-103', user: 'Alex S.', item: 'Hoodie', cost: 800, status: 'Pending' },
-  ]);
+  const [requests, setRequests] = useState<{ id: string; user: string; item: string; cost: number; status: string }[]>([]);
 
   const process = (id: string) => {
      setRequests(prev => prev.filter(r => r.id !== id));
@@ -19,7 +16,7 @@ const Redemption: React.FC = () => {
        
        <div className="grid grid-cols-1 gap-4">
           <AnimatePresence>
-             {requests.map(req => (
+             {requests.length > 0 ? requests.map(req => (
                <motion.div
                  key={req.id}
                  exit={{ opacity: 0, x: -20 }}
@@ -31,7 +28,7 @@ const Redemption: React.FC = () => {
                      </div>
                      <div>
                         <h3 className="font-bold text-white">{req.item}</h3>
-                        <p className="text-sm text-slate-400">{req.user} • <span className="text-yellow-500 font-mono">{req.cost} pts</span></p>
+                        <p className="text-sm text-slate-400">{req.user} • <span className="text-yellow-500 font-mono">{req.cost} Bonus</span></p>
                      </div>
                   </div>
                   <div className="flex gap-2">
@@ -49,11 +46,10 @@ const Redemption: React.FC = () => {
                      </button>
                   </div>
                </motion.div>
-             ))}
+             )) : (
+                 <div className="text-center py-20 text-slate-500">No pending requests</div>
+             )}
           </AnimatePresence>
-          {requests.length === 0 && (
-             <div className="text-center py-20 text-slate-500">No pending requests</div>
-          )}
        </div>
     </div>
   );

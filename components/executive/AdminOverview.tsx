@@ -1,13 +1,10 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Shield, Activity, Server, AlertTriangle, UserCheck } from 'lucide-react';
 
 const AdminOverview: React.FC = () => {
-  const adminLogs = [
-    { id: 1, admin: "Admin 1", action: "Approved bulk redemption", time: "10m ago", status: "Success" },
-    { id: 2, admin: "Admin 3", action: "Updated Event: Pulse Parade", time: "25m ago", status: "Success" },
-    { id: 3, admin: "Admin 2", action: "Failed login attempt", time: "1h ago", status: "Warning" },
-  ];
+  const adminLogs: any[] = [];
 
   return (
     <div className="space-y-6">
@@ -25,21 +22,21 @@ const AdminOverview: React.FC = () => {
                      <div className="font-bold text-white">Database Latency</div>
                      <div className="text-xs text-slate-400">Response time within limits</div>
                   </div>
-                  <span className="text-green-400 font-mono font-bold">12ms</span>
+                  <span className="text-green-400 font-mono font-bold">-- ms</span>
                </div>
                <div className="flex justify-between items-center p-4 bg-white/5 rounded-xl border-l-4 border-green-500">
                   <div>
                      <div className="font-bold text-white">API Gateway</div>
                      <div className="text-xs text-slate-400">Traffic load normal</div>
                   </div>
-                  <span className="text-green-400 font-mono font-bold">99.9% Uptime</span>
+                  <span className="text-green-400 font-mono font-bold">100% Uptime</span>
                </div>
-               <div className="flex justify-between items-center p-4 bg-white/5 rounded-xl border-l-4 border-yellow-500">
+               <div className="flex justify-between items-center p-4 bg-white/5 rounded-xl border-l-4 border-green-500">
                   <div>
                      <div className="font-bold text-white">Backup Sync</div>
-                     <div className="text-xs text-slate-400">Running slightly behind schedule</div>
+                     <div className="text-xs text-slate-400">Sync status normal</div>
                   </div>
-                  <span className="text-yellow-400 font-mono font-bold">Processing...</span>
+                  <span className="text-green-400 font-mono font-bold">Synced</span>
                </div>
             </div>
          </div>
@@ -49,7 +46,7 @@ const AdminOverview: React.FC = () => {
             <div className="w-20 h-20 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center mb-4">
                <Shield size={40} />
             </div>
-            <h3 className="text-4xl font-bold text-white mb-1">8</h3>
+            <h3 className="text-4xl font-bold text-white mb-1">0</h3>
             <p className="text-slate-400">Active Admins Online</p>
          </div>
       </div>
@@ -68,7 +65,7 @@ const AdminOverview: React.FC = () => {
                   </tr>
                </thead>
                <tbody className="divide-y divide-white/5">
-                  {adminLogs.map(log => (
+                  {adminLogs.length > 0 ? adminLogs.map(log => (
                      <tr key={log.id}>
                         <td className="p-3 text-white font-medium">{log.admin}</td>
                         <td className="p-3">{log.action}</td>
@@ -79,7 +76,11 @@ const AdminOverview: React.FC = () => {
                            </span>
                         </td>
                      </tr>
-                  ))}
+                  )) : (
+                     <tr>
+                        <td colSpan={4} className="p-8 text-center text-slate-500">No recent logs.</td>
+                     </tr>
+                  )}
                </tbody>
             </table>
          </div>

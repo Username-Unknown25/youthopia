@@ -1,13 +1,14 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Users, Trophy, Calendar, TrendingUp } from 'lucide-react';
 
 const StudentOverview: React.FC = () => {
   const stats = [
-    { label: 'Total Student Base', value: '1,240', change: '+12%', icon: <Users size={20} />, color: 'text-blue-400' },
-    { label: 'Active Engagement', value: '85%', change: '+5%', icon: <TrendingUp size={20} />, color: 'text-green-400' },
-    { label: 'Total Points Issued', value: '450k', change: '+8%', icon: <Trophy size={20} />, color: 'text-yellow-400' },
-    { label: 'Event Participation', value: '3,850', change: '+15%', icon: <Calendar size={20} />, color: 'text-purple-400' },
+    { label: 'Total Student Base', value: '0', change: '0%', icon: <Users size={20} />, color: 'text-blue-400' },
+    { label: 'Active Engagement', value: '0%', change: '0%', icon: <TrendingUp size={20} />, color: 'text-green-400' },
+    { label: 'Total Bonus Issued', value: '0', change: '0%', icon: <Trophy size={20} />, color: 'text-yellow-400' },
+    { label: 'Event Participation', value: '0', change: '0%', icon: <Calendar size={20} />, color: 'text-purple-400' },
   ];
 
   return (
@@ -39,30 +40,14 @@ const StudentOverview: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
          <div className="bg-[#111] border border-white/10 p-6 rounded-2xl">
             <h3 className="text-lg font-bold text-white mb-4">Daily Footfall</h3>
-            <div className="h-64 flex items-end gap-2">
-               {[40, 60, 45, 70, 85, 65, 90].map((h, i) => (
-                 <motion.div 
-                   key={i}
-                   initial={{ height: 0 }}
-                   animate={{ height: `${h}%` }}
-                   transition={{ duration: 1, delay: i * 0.1 }}
-                   className="flex-1 bg-gradient-to-t from-blue-900/50 to-blue-500 rounded-t-sm opacity-80 hover:opacity-100 transition-opacity"
-                 />
-               ))}
+            <div className="h-64 flex items-end gap-2 justify-center text-slate-500">
+               No data
             </div>
          </div>
          <div className="bg-[#111] border border-white/10 p-6 rounded-2xl">
-            <h3 className="text-lg font-bold text-white mb-4">Points Circulation</h3>
-             <div className="h-64 flex items-end gap-2">
-               {[30, 40, 35, 50, 60, 80, 75].map((h, i) => (
-                 <motion.div 
-                   key={i}
-                   initial={{ height: 0 }}
-                   animate={{ height: `${h}%` }}
-                   transition={{ duration: 1, delay: i * 0.1 }}
-                   className="flex-1 bg-gradient-to-t from-yellow-900/50 to-yellow-500 rounded-t-sm opacity-80 hover:opacity-100 transition-opacity"
-                 />
-               ))}
+            <h3 className="text-lg font-bold text-white mb-4">Bonus Circulation</h3>
+             <div className="h-64 flex items-end gap-2 justify-center text-slate-500">
+               No data
             </div>
          </div>
       </div>

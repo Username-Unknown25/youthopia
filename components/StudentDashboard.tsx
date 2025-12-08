@@ -2,18 +2,19 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Menu, X, User, Activity, Trophy, Coins, Calendar, ShoppingBag, 
-  ClipboardList, LogOut
+  Menu, X, User, Activity, Trophy, Coins, ShoppingBag, 
+  ClipboardList, LogOut, Map as MapIcon, HelpCircle
 } from 'lucide-react';
 
 // Import Sub-pages
 import Me from './dashboard/Me';
 import Activities from './dashboard/Activities';
 import Leaderboard from './dashboard/Leaderboard';
-import Points from './dashboard/Points';
-import Schedule from './dashboard/Schedule';
+import Bonus from './dashboard/Bonus';
 import Redeem from './dashboard/Redeem';
 import Score from './dashboard/Score';
+import MapPage from './dashboard/Map';
+import Help from './dashboard/Help';
 import { UserData } from '../types';
 
 interface StudentDashboardProps {
@@ -21,21 +22,24 @@ interface StudentDashboardProps {
   user: UserData | null;
 }
 
-type DashboardSection = 'me' | 'activities' | 'leaderboard' | 'points' | 'schedule' | 'redeem' | 'score';
+type DashboardSection = 'me' | 'activities' | 'leaderboard' | 'bonus' | 'redeem' | 'score' | 'map' | 'help';
 
 const StudentDashboard: React.FC<StudentDashboardProps> = ({ onLogout, user }) => {
   const [activeSection, setActiveSection] = useState<DashboardSection>('me');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [points, setPoints] = useState(1250);
+  // Initial bonus set to 0 as requested (removed default 1250)
+  const [bonus, setBonus] = useState(0);
   // Shared state for registered events
   const [registeredEventIds, setRegisteredEventIds] = useState<string[]>([]);
+  // Track how many spins the user has consumed
+  const [spinsUsed, setSpinsUsed] = useState(0);
 
   const handleRedeem = (cost: number) => {
-    setPoints(prev => Math.max(0, prev - cost));
+    setBonus(prev => Math.max(0, prev - cost));
   };
 
-  const handleAddPoints = (amount: number) => {
-    setPoints(prev => prev + amount);
+  const handleAddBonus = (amount: number) => {
+    setBonus(prev => prev + amount);
   };
 
   const handleEventRegistration = (eventId: string) => {
@@ -44,42 +48,66 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ onLogout, user }) =
     }
   };
 
+  const handleSpinUsed = () => {
+    setSpinsUsed(prev => prev + 1);
+  };
+
+  const handleNavigateToRedeem = () => {
+    setActiveSection('redeem');
+  };
+
+  // Logic: 1 Spin for every 4 events registered/completed
+  const totalSpinsEarned = Math.floor(registeredEventIds.length / 4);
+  const spinsAvailable = Math.max(0, totalSpinsEarned - spinsUsed);
+
   const menuItems = [
     { id: 'me', label: 'Me', icon: <User size={20} /> },
     { id: 'activities', label: 'Activities', icon: <Activity size={20} /> },
-    { id: 'schedule', label: 'Schedule', icon: <Calendar size={20} /> },
+    { id: 'bonus', label: 'Bonus', icon: <Coins size={20} /> },
     { id: 'leaderboard', label: 'Leaderboard', icon: <Trophy size={20} /> },
-    { id: 'points', label: 'Points', icon: <Coins size={20} /> },
     { id: 'score', label: 'Score', icon: <ClipboardList size={20} /> },
     { id: 'redeem', label: 'Redeem', icon: <ShoppingBag size={20} /> },
+    { id: 'map', label: 'Map', icon: <MapIcon size={20} /> },
+    { id: 'help', label: 'Help', icon: <HelpCircle size={20} /> },
   ];
 
   // Mobile Bottom Tab Configuration
   const bottomTabs = [
     { id: 'me', label: 'Me', icon: <User size={20} /> },
     { id: 'activities', label: 'Events', icon: <Activity size={20} /> },
-    { id: 'schedule', label: 'Schedule', icon: <Calendar size={20} /> },
-    { id: 'leaderboard', label: 'Rank', icon: <Trophy size={20} /> },
+    { id: 'bonus', label: 'Bonus', icon: <Coins size={20} /> },
+    { id: 'map', label: 'Map', icon: <MapIcon size={20} /> },
   ];
 
   const renderContent = () => {
     switch (activeSection) {
       case 'me': 
-        return <Me points={points} user={user} registeredEventIds={registeredEventIds} />;
+        return <Me bonus={bonus} user={user} registeredEventIds={registeredEventIds} />;
       case 'activities': 
         return <Activities registeredEventIds={registeredEventIds} onRegister={handleEventRegistration} />;
       case 'leaderboard': 
-        return <Leaderboard points={points} />;
-      case 'points': 
-        return <Points points={points} onAddPoints={handleAddPoints} />;
-      case 'schedule': 
-        return <Schedule registeredEventIds={registeredEventIds} />;
+        return <Leaderboard bonus={bonus} />;
+      case 'bonus': 
+        return (
+          <Bonus 
+            bonus={bonus} 
+            onAddBonus={handleAddBonus} 
+            spinsAvailable={spinsAvailable}
+            eventsCount={registeredEventIds.length}
+            onSpinUsed={handleSpinUsed}
+            onNavigateToRedeem={handleNavigateToRedeem}
+          />
+        );
       case 'redeem': 
-        return <Redeem onRedeem={handleRedeem} userPoints={points} />;
+        return <Redeem onRedeem={handleRedeem} userBonus={bonus} />;
       case 'score': 
-        return <Score points={points} />;
+        return <Score bonus={bonus} />;
+      case 'map':
+        return <MapPage />;
+      case 'help':
+        return <Help />;
       default: 
-        return <Me points={points} user={user} registeredEventIds={registeredEventIds} />;
+        return <Me bonus={bonus} user={user} registeredEventIds={registeredEventIds} />;
     }
   };
 

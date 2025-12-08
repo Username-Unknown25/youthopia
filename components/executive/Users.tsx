@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Plus, Edit2, Trash2, Check, X, User } from 'lucide-react';
@@ -5,11 +6,7 @@ import Button from '../Button';
 import Input from '../Input';
 
 const Users: React.FC = () => {
-  const [users, setUsers] = useState([
-    { id: 'YTH-001', name: 'Alex Student', school: 'Birla College', role: 'Student', status: 'Active' },
-    { id: 'YTH-002', name: 'Sarah Jones', school: 'Modern High', role: 'Student', status: 'Active' },
-    { id: 'YTH-003', name: 'Admin One', school: 'System', role: 'Admin', status: 'Active' },
-  ]);
+  const [users, setUsers] = useState<{ id: string; name: string; school: string; role: string; status: string }[]>([]);
 
   const [isEditing, setIsEditing] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -39,7 +36,7 @@ const Users: React.FC = () => {
          </Button>
       </div>
 
-      <div className="bg-[#111] border border-white/10 rounded-2xl overflow-hidden">
+      <div className="bg-[#111] border border-white/10 rounded-2xl overflow-hidden min-h-[300px]">
          <table className="w-full text-left text-sm text-slate-300">
             <thead className="bg-white/5 text-xs uppercase font-bold text-yellow-500">
                <tr>
@@ -52,7 +49,7 @@ const Users: React.FC = () => {
             </thead>
             <tbody className="divide-y divide-white/5">
                <AnimatePresence>
-               {users.map(user => (
+               {users.length > 0 ? users.map(user => (
                   <motion.tr 
                     key={user.id}
                     initial={{ opacity: 0 }}
@@ -80,7 +77,11 @@ const Users: React.FC = () => {
                         </button>
                      </td>
                   </motion.tr>
-               ))}
+               )) : (
+                  <tr>
+                      <td colSpan={5} className="p-8 text-center text-slate-500">No users found.</td>
+                  </tr>
+               )}
                </AnimatePresence>
             </tbody>
          </table>

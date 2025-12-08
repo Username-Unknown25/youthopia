@@ -1,6 +1,7 @@
+
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Phone, Lock, Eye, EyeOff, User, GraduationCap, Building, Layers, Info, ShieldCheck, Check } from 'lucide-react';
+import { Phone, Lock, Eye, EyeOff, User, GraduationCap, Building, Layers, Info, ShieldCheck, Check, AlertCircle } from 'lucide-react';
 import Input from './Input';
 import Button from './Button';
 import { AuthState, Gender, UserData } from '../types';
@@ -14,6 +15,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onBack, onLogin }) => {
   const [activeTab, setActiveTab] = useState<AuthState>('login');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
     phone: '',
@@ -31,22 +33,25 @@ const AuthPage: React.FC<AuthPageProps> = ({ onBack, onLogin }) => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    if (error) setError(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+
+    // 1. Password Match Validation for Register
     if (activeTab === 'register' && formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match!");
+      setError("Passwords do not match!");
       return;
     }
 
-    // Admin Credentials Validation
+    // 2. Admin Credentials Validation (Kept as system access keys)
     if (activeTab === 'admin') {
       if (formData.adminId === '123456' && formData.password === '123456') {
          setIsLoading(true);
          setTimeout(() => {
             setIsLoading(false);
-            // Pass admin data to trigger Admin Dashboard in App.tsx
             onLogin({
                 name: "System Admin",
                 school: "Youthopia Admin",
@@ -61,7 +66,6 @@ const AuthPage: React.FC<AuthPageProps> = ({ onBack, onLogin }) => {
          }, 1500);
          return;
       } else if (formData.adminId === '789' && formData.password === '789') {
-         // EXECUTIVE DASHBOARD LOGIN
          setIsLoading(true);
          setTimeout(() => {
             setIsLoading(false);
@@ -79,26 +83,62 @@ const AuthPage: React.FC<AuthPageProps> = ({ onBack, onLogin }) => {
          }, 1500);
          return;
       } else {
-         alert("Invalid Admin ID or Password. Please try again.");
+         setError("Invalid Admin ID or Password.");
          return;
       }
     }
     
+    // 3. Student Login/Register Logic
     setIsLoading(true);
 
-    // Simulate API call for Students
     setTimeout(() => {
         setIsLoading(false);
+        const storageKey = `user_${formData.phone}`;
+
         if (activeTab === 'register') {
+            // Check existence
+            if (localStorage.getItem(storageKey)) {
+                setError("Account already exists with this phone number.");
+                return;
+            }
+
+            // Save new user
+            const newUser = {
+                name: formData.name,
+                school: formData.school,
+                class: formData.class,
+                stream: formData.stream,
+                phone: formData.phone,
+                age: formData.age,
+                gender: formData.gender,
+                password: formData.password, // Storing simply for this mock auth
+                role: 'student'
+            };
+            localStorage.setItem(storageKey, JSON.stringify(newUser));
+            
+            // Proceed to Welcome
             setActiveTab('welcome');
-        } else {
-            // Login (pass mock data or empty to let App use default)
-            onLogin(); 
+
+        } else if (activeTab === 'login') {
+            // Retrieve user
+            const storedData = localStorage.getItem(storageKey);
+            
+            if (storedData) {
+                const user = JSON.parse(storedData);
+                if (user.password === formData.password) {
+                    onLogin(user);
+                } else {
+                    setError("Incorrect password. Please try again.");
+                }
+            } else {
+                setError("User not found. Please register an account.");
+            }
         }
     }, 1500);
   };
 
   const toggleTab = () => {
+    setError(null);
     if (activeTab === 'admin') {
         setActiveTab('login');
     } else {
@@ -110,11 +150,13 @@ const AuthPage: React.FC<AuthPageProps> = ({ onBack, onLogin }) => {
   const switchToAdmin = () => {
       setActiveTab('admin');
       resetForm();
+      setError(null);
   };
   
   const switchToUser = () => {
       setActiveTab('login');
       resetForm();
+      setError(null);
   };
 
   const resetForm = () => {
@@ -382,10 +424,10 @@ const AuthPage: React.FC<AuthPageProps> = ({ onBack, onLogin }) => {
                     transition={{ delay: 0.4 }}
                     className="bg-[#0f291e] border border-[#166534] text-[#4ade80] font-bold py-3 px-6 rounded-2xl text-center mb-8 w-full shadow-lg shadow-green-900/20"
                   >
-                    +5 Welcome Points Awarded!
+                    +5 Welcome Bonus Awarded!
                   </motion.div>
 
-                  <Button type="button" onClick={() => onLogin(formData)} fullWidth variant="amber" shape="pill" className="text-lg font-bold py-4">
+                  <Button type="button" onClick={() => onLogin({...formData, role: 'student'})} fullWidth variant="amber" shape="pill" className="text-lg font-bold py-4">
                     Grab Your VISA
                   </Button>
 
@@ -398,8 +440,20 @@ const AuthPage: React.FC<AuthPageProps> = ({ onBack, onLogin }) => {
             )}
           </AnimatePresence>
 
+          {/* Error Banner */}
+          {error && activeTab !== 'welcome' && (
+             <motion.div 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl flex items-center gap-2 text-sm"
+             >
+                <AlertCircle size={16} className="shrink-0" />
+                {error}
+             </motion.div>
+          )}
+
           {activeTab !== 'welcome' && (
-            <div className="pt-4">
+            <div className="pt-2">
                <Button type="submit" fullWidth variant="amber" shape="pill" className="text-lg" isLoading={isLoading} disabled={isLoading}>
                   {activeTab === 'register' ? 'Next' : 'Sign In'}
                </Button>

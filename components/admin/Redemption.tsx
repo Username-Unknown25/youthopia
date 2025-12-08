@@ -14,12 +14,7 @@ interface RedemptionRequest {
 }
 
 const Redemption: React.FC = () => {
-  const [requests, setRequests] = useState<RedemptionRequest[]>([
-    { id: 'RED-001', user: 'Alex Student', item: 'Diary', cost: 750, status: 'Pending', time: '10 mins ago' },
-    { id: 'RED-002', user: 'Priya R.', item: 'Sipper', cost: 550, status: 'Pending', time: '25 mins ago' },
-    { id: 'RED-003', user: 'Rahul K.', item: 'Keychain', cost: 350, status: 'Pending', time: '1 hour ago' },
-    { id: 'RED-004', user: 'Sarah J.', item: 'Badge', cost: 150, status: 'Pending', time: '2 hours ago' },
-  ]);
+  const [requests, setRequests] = useState<RedemptionRequest[]>([]);
 
   const [notification, setNotification] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
 

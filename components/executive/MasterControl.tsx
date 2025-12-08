@@ -35,7 +35,7 @@ const MasterControl: React.FC = () => {
 
           <div className="bg-[#111] border border-white/10 p-6 rounded-2xl flex items-center justify-between">
              <div>
-                <h3 className="font-bold text-white">Points Redemption</h3>
+                <h3 className="font-bold text-white">Bonus Redemption</h3>
                 <p className="text-sm text-slate-400">Enable/Disable the reward store.</p>
              </div>
              <button 
@@ -59,7 +59,7 @@ const MasterControl: React.FC = () => {
                 Force Logout All Users
              </Button>
              <Button variant="outline" className="text-red-400 border-red-500/50 hover:bg-red-500/10">
-                Reset All Points
+                Reset All Bonus
              </Button>
           </div>
        </div>
