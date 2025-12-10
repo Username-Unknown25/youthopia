@@ -1,3 +1,4 @@
+
 import { UserData } from '../types';
 import { DB } from './db';
 
@@ -5,9 +6,8 @@ const USERS_KEY = 'yth_users';
 
 export const AuthController = {
   login: async (email: string, password?: string): Promise<{ user: UserData | null, error?: string }> => {
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 800));
-
+    // Artificial delay removed for speed
+    
     // 1. Static Admin/Executive Check
     if (email === 'admin@youthopia.com' && password === '123456') {
         return { user: { name: "System Admin", email, role: 'admin', school: 'System', class: 'N/A', stream: 'N/A', phone: 'N/A', age: 'N/A', gender: 'Other' } as UserData };
@@ -16,11 +16,12 @@ export const AuthController = {
         return { user: { name: "Executive Director", email, role: 'executive', school: 'Board', class: 'N/A', stream: 'N/A', phone: 'N/A', age: 'N/A', gender: 'Other' } as UserData };
     }
 
-    // New Student Credential (Hardcoded as per request)
-    if ((email === '9321549715' || email === 'aditya@youthopia.com') && password === 'Aditya@27') {
+    // 2. Custom Student Credential Check (Phone/Email)
+    // Supports login via phone "9321549715" or email "aditya@youthopia.com" with password "Aditya@27"
+    if ((email === '9321549715' || email.toLowerCase() === 'aditya@youthopia.com') && password === 'Aditya@27') {
         const hardcodedUser: UserData = { 
             name: "Aditya", 
-            email: "aditya@youthopia.com", 
+            email: "aditya@youthopia.com", // Normalized email
             phone: "9321549715",
             role: 'student', 
             school: 'Youthopia High', 
@@ -28,22 +29,24 @@ export const AuthController = {
             stream: 'Science', 
             age: '18', 
             gender: 'Male',
-            bonus: 0 // Clean data
+            bonus: 0 // Clean data default
         };
 
         // Ensure user exists in DB so points/registrations work properly across reloads
         const users = DB.read<UserData[]>(USERS_KEY, []);
-        const existingUser = users.find(u => u.email === hardcodedUser.email);
+        const existingUser = users.find(u => u.phone === '9321549715' || u.email === 'aditya@youthopia.com');
         
         if (!existingUser) {
+            // First time login for this specific user, seed clean data
             DB.write(USERS_KEY, [...users, hardcodedUser]);
             return { user: hardcodedUser };
         } else {
+             // Return existing persisted user state
              return { user: existingUser };
         }
     }
 
-    // 2. Check Database
+    // 3. Check Database
     // Note: For this local simulation, we look up the specific user key where password is stored
     const legacyKey = `user_${email.toLowerCase()}`;
     const storedUser = DB.read<any>(legacyKey, null);
@@ -57,7 +60,7 @@ export const AuthController = {
   },
 
   register: async (userData: UserData, password?: string): Promise<{ success: boolean, error?: string }> => {
-    await new Promise(resolve => setTimeout(resolve, 800));
+    // Artificial delay removed for speed
     
     const users = DB.read<UserData[]>(USERS_KEY, []);
     

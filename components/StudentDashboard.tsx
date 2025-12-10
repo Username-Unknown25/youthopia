@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -74,7 +75,8 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ onLogout, user }) =
     return evt?.category === 'Engagement';
   }), [registeredEventIds, events]);
   
-  const totalSpinsEarned = Math.floor(engagementEventsRegistered.length / 4);
+  // Grant 1 free spin + earned spins
+  const totalSpinsEarned = Math.floor(engagementEventsRegistered.length / 4) + 1;
   const spinsAvailable = Math.max(0, totalSpinsEarned - spinsUsed);
 
   const menuItems = [
@@ -100,7 +102,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ onLogout, user }) =
       case 'me': 
         return <Me bonus={bonus} user={user} registeredEventIds={registeredEventIds} />;
       case 'activities': 
-        return <Activities registeredEventIds={registeredEventIds} onRegister={handleEventRegistration} />;
+        return <Activities registeredEventIds={registeredEventIds} onRegister={handleEventRegistration} user={user} />;
       case 'leaderboard': 
         return <Leaderboard bonus={bonus} />;
       case 'bonus': 
@@ -128,28 +130,31 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ onLogout, user }) =
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col md:flex-row font-sans">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col md:flex-row font-sans overflow-hidden">
       
       {/* Mobile Header */}
-      <header className="md:hidden bg-brand-dark text-white p-4 flex justify-center items-center z-40 sticky top-0 shadow-md">
+      <header className="md:hidden bg-brand-dark text-white p-4 flex justify-between items-center z-40 sticky top-0 shadow-md">
          <div className="flex items-center gap-2">
             <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-yellow to-brand-pink">YOUTHOPIA</span>
          </div>
+         <button onClick={() => setIsMobileMenuOpen(true)} className="text-white p-1">
+            <Menu size={24} />
+         </button>
       </header>
 
       {/* Mobile Menu Drawer */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div 
-            initial={{ y: '100%' }}
-            animate={{ y: 0 }}
-            exit={{ y: '100%' }}
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed inset-0 bg-brand-dark z-[60] flex flex-col md:hidden"
+            className="fixed inset-0 bg-brand-dark z-[100] flex flex-col md:hidden"
           >
              <div className="p-4 flex justify-between items-center border-b border-slate-800">
-                <span className="text-xl font-bold text-white">All Menu Items</span>
-                <button onClick={() => setIsMobileMenuOpen(false)} className="text-white p-2 bg-slate-800 rounded-full">
+                <span className="text-xl font-bold text-white">Menu</span>
+                <button onClick={() => setIsMobileMenuOpen(false)} className="text-white p-2 bg-slate-800 rounded-full hover:bg-slate-700">
                   <X size={24} />
                 </button>
              </div>
@@ -168,7 +173,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ onLogout, user }) =
                     }`}
                   >
                     {item.icon}
-                    <span className="font-semibold">{item.label}</span>
+                    <span className="font-semibold text-lg">{item.label}</span>
                     {activeSection === item.id && <div className="ml-auto w-2 h-2 bg-green-400 rounded-full" />}
                   </button>
                 ))}
@@ -179,7 +184,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ onLogout, user }) =
                     className="w-full flex items-center gap-4 p-4 rounded-xl text-red-400 hover:bg-red-500/10 transition-colors"
                   >
                     <LogOut size={20} />
-                    <span className="font-semibold">Logout</span>
+                    <span className="font-semibold text-lg">Logout</span>
                   </button>
                 </div>
              </div>
@@ -211,13 +216,13 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ onLogout, user }) =
                 <motion.div 
                   layoutId="activeTab" 
                   className="absolute inset-0 bg-gradient-to-r from-brand-purple to-brand-pink z-0" 
-                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
                 />
               )}
               {activeSection !== item.id && (
                 <motion.div 
                    className="absolute inset-0 bg-slate-800 opacity-0 group-hover:opacity-100 z-0 rounded-xl"
-                   transition={{ duration: 0.2 }}
+                   transition={{ duration: 0.15 }}
                 />
               )}
               <div className="relative z-10 flex items-center gap-3">
@@ -244,10 +249,10 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ onLogout, user }) =
          <AnimatePresence mode="wait">
              <motion.div
                 key={activeSection}
-                initial={{ opacity: 0, y: 15, scale: 0.98 }}
+                initial={{ opacity: 0, y: 10, scale: 0.99 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -15, scale: 0.98 }}
-                transition={{ duration: 0.25, ease: "easeOut" }}
+                exit={{ opacity: 0, y: -10, scale: 0.99 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
                 className="max-w-5xl mx-auto"
              >
                {renderContent()}
@@ -256,7 +261,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ onLogout, user }) =
       </main>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-50 px-2 py-2 safe-area-bottom shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-50 px-2 py-2 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] pb-[env(safe-area-inset-bottom,20px)]">
         <div className="flex justify-around items-center">
           {bottomTabs.map(tab => (
             <button
@@ -272,7 +277,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ onLogout, user }) =
                 <motion.div
                   layoutId="activeBottomTabBg"
                   className="absolute inset-0 bg-brand-purple/10 rounded-xl"
-                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
                 />
               )}
               

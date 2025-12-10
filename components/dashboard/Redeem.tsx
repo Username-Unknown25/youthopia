@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CircleCheck, CircleAlert, CircleX } from 'lucide-react';
@@ -44,6 +45,7 @@ const Redeem: React.FC<RedeemProps> = ({ onRedeem, userBonus, user }) => {
     
     setRedeemStatus('loading');
     
+    // Quick process time for responsiveness
     setTimeout(() => {
       if (userBonus >= selectedItem.cost) {
         onRedeem(selectedItem.cost);
@@ -64,11 +66,11 @@ const Redeem: React.FC<RedeemProps> = ({ onRedeem, userBonus, user }) => {
           setToast({ message: `Successfully redeemed ${selectedItem.name}!`, type: 'success' });
           setSelectedItem(null);
           setRedeemStatus('idle');
-        }, 2000);
+        }, 1200);
       } else {
         setRedeemStatus('error');
       }
-    }, 1500);
+    }, 800);
   };
 
   const handleCancel = () => {

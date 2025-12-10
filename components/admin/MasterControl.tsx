@@ -1,19 +1,23 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Power, Megaphone, Lock, RefreshCcw, Bell, Calendar, Key, CheckCircle2, X, Search, Trophy, UserCheck, Terminal } from 'lucide-react';
+import { Power, Megaphone, Lock, RefreshCcw, Bell, Calendar, Key, CheckCircle2, X, Search, Trophy, UserCheck, Terminal, Phone, BookOpen, GraduationCap, MessageSquare } from 'lucide-react';
 import Button from '../Button';
 import Input from '../Input';
 import { useData } from '../../contexts/DataContext';
 
-interface MockStudent {
-  id: string;
+interface EnrolledStudent {
+  id: string; // Email is used as ID
   name: string;
+  phone: string;
+  school: string;
+  details: string; // Class & Stream
   status: 'Registered' | 'Attended' | 'Completed';
+  feedback?: string;
 }
 
 const MasterControl: React.FC = () => {
-  const { events, users, registrations, updateUserBonus } = useData();
+  const { events, users, registrations, completedEvents, updateUserBonus, markEventCompleted, feedbacks } = useData();
   const [activeTab, setActiveTab] = useState<'global' | 'events'>('events');
   const [systemState, setSystemState] = useState({
     registrationsOpen: true,
@@ -40,10 +44,10 @@ const MasterControl: React.FC = () => {
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [authError, setAuthError] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [currentStudents, setCurrentStudents] = useState<MockStudent[]>([]);
+  const [currentStudents, setCurrentStudents] = useState<EnrolledStudent[]>([]);
 
   // Fetch real students registered for the event
-  const getRegisteredStudents = (evtId: string): MockStudent[] => {
+  const getRegisteredStudents = (evtId: string): EnrolledStudent[] => {
     // 1. Find all emails that have this eventId in registrations
     const registeredEmails = Object.keys(registrations).filter(email => 
         registrations[email].includes(evtId)
@@ -52,10 +56,19 @@ const MasterControl: React.FC = () => {
     // 2. Map emails to user details from users array
     return registeredEmails.map(email => {
         const user = users.find(u => u.email === email);
+        const isCompleted = completedEvents[email] && completedEvents[email].includes(evtId);
+        
+        // Find feedback for this user and event
+        const userFeedback = feedbacks.find(f => f.eventId === evtId && f.userEmail === email);
+
         return {
-            id: email, // Using email as ID for uniqueness in this context
+            id: email,
             name: user ? user.name : 'Unknown Student',
-            status: 'Registered' // Default status
+            phone: user?.phone || 'N/A',
+            school: user?.school || 'N/A',
+            details: user ? `${user.class || ''} - ${user.stream || ''}` : 'N/A',
+            status: isCompleted ? 'Completed' : 'Registered',
+            feedback: userFeedback ? userFeedback.emoji : undefined
         };
     });
   };
@@ -101,9 +114,15 @@ const MasterControl: React.FC = () => {
     // Find event points amount, default to 50 if not set
     const evt = events.find(e => e.id === selectedEventId);
     const points = evt?.points || 50;
+    
     updateUserBonus(studentEmail, points);
+    
+    // 3. Mark Event as Completed for the user
+    if (selectedEventId) {
+      markEventCompleted(studentEmail, selectedEventId);
+    }
 
-    addLog(`Bonus of ${points} granted to ${studentEmail} for Event ${selectedEventId}`);
+    addLog(`Bonus of ${points} granted to ${studentEmail} for Event ${selectedEventId}. Status set to Completed.`);
   };
 
   const grantAllBonus = () => {
@@ -113,11 +132,14 @@ const MasterControl: React.FC = () => {
     currentStudents.forEach(s => {
         if (s.status !== 'Completed') {
             updateUserBonus(s.id, points);
+            if (selectedEventId) {
+                markEventCompleted(s.id, selectedEventId);
+            }
         }
     });
 
     setCurrentStudents(prev => prev.map(s => ({ ...s, status: 'Completed' })));
-    addLog(`Bulk bonus grant executed for Event ${selectedEventId}`);
+    addLog(`Bulk bonus grant executed for Event ${selectedEventId}. All students marked Completed.`);
   };
 
   const handleBroadcast = () => {
@@ -342,7 +364,7 @@ const MasterControl: React.FC = () => {
                    initial={{ scale: 0.95, opacity: 0 }}
                    animate={{ scale: 1, opacity: 1 }}
                    exit={{ scale: 0.95, opacity: 0 }}
-                   className="bg-white rounded-3xl w-full max-w-3xl max-h-[80vh] flex flex-col relative z-10 shadow-2xl overflow-hidden"
+                   className="bg-white rounded-3xl w-full max-w-5xl max-h-[80vh] flex flex-col relative z-10 shadow-2xl overflow-hidden"
                  >
                     {/* Panel Header */}
                     <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
@@ -365,25 +387,51 @@ const MasterControl: React.FC = () => {
                        <div className="flex justify-between items-end mb-4">
                           <h3 className="font-bold text-slate-700">Enrolled Students ({currentStudents.length})</h3>
                           <Button variant="secondary" className="text-xs py-2 h-auto" onClick={grantAllBonus}>
-                             <Trophy size={14} className="mr-1" /> Grant All Bonus
+                             <Trophy size={14} className="mr-1" /> Grant All Bonus & Complete
                           </Button>
                        </div>
 
-                       <div className="border border-slate-200 rounded-xl overflow-hidden">
-                          <table className="w-full text-left">
+                       <div className="border border-slate-200 rounded-xl overflow-hidden shadow-sm overflow-x-auto">
+                          <table className="w-full text-left min-w-[600px]">
                              <thead className="bg-slate-50 text-xs font-bold text-slate-500 uppercase">
                                 <tr>
-                                   <th className="p-3 pl-4">Student ID / Email</th>
-                                   <th className="p-3">Name</th>
+                                   <th className="p-3 pl-4">Name & Email</th>
+                                   <th className="p-3 hidden md:table-cell">Contact</th>
+                                   <th className="p-3 hidden md:table-cell">Details</th>
+                                   <th className="p-3 text-center">Feedback</th>
                                    <th className="p-3">Status</th>
                                    <th className="p-3 text-right pr-4">Action</th>
                                 </tr>
                              </thead>
                              <tbody className="divide-y divide-slate-100 text-sm">
                                 {currentStudents.map(student => (
-                                   <tr key={student.id} className="hover:bg-slate-50">
-                                      <td className="p-3 pl-4 font-mono text-slate-500 truncate max-w-[150px]">{student.id}</td>
-                                      <td className="p-3 font-medium text-slate-800">{student.name}</td>
+                                   <tr key={student.id} className="hover:bg-slate-50 transition-colors">
+                                      <td className="p-3 pl-4">
+                                          <div className="font-bold text-slate-800">{student.name}</div>
+                                          <div className="text-xs text-slate-400 font-mono truncate max-w-[150px]">{student.id}</div>
+                                      </td>
+                                      <td className="p-3 hidden md:table-cell">
+                                          <div className="flex items-center gap-1.5 text-slate-600">
+                                            <Phone size={12} className="text-slate-400" /> {student.phone}
+                                          </div>
+                                      </td>
+                                      <td className="p-3 hidden md:table-cell">
+                                          <div className="flex flex-col gap-0.5">
+                                             <div className="flex items-center gap-1.5 text-slate-600 text-xs font-semibold">
+                                                <BookOpen size={12} className="text-slate-400" /> {student.school}
+                                             </div>
+                                             <div className="flex items-center gap-1.5 text-slate-500 text-xs">
+                                                <GraduationCap size={12} className="text-slate-400" /> {student.details}
+                                             </div>
+                                          </div>
+                                      </td>
+                                      <td className="p-3 text-center">
+                                          {student.feedback ? (
+                                              <span className="text-xl" title="Student Sentiment">{student.feedback}</span>
+                                          ) : (
+                                              <span className="text-slate-300 text-xs italic">-</span>
+                                          )}
+                                      </td>
                                       <td className="p-3">
                                          <span className={`px-2 py-1 rounded-full text-xs font-bold ${student.status === 'Completed' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
                                             {student.status}
@@ -397,7 +445,7 @@ const MasterControl: React.FC = () => {
                                          ) : (
                                             <button 
                                               onClick={() => grantBonus(student.id)}
-                                              className="bg-brand-purple/10 hover:bg-brand-purple text-brand-purple hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
+                                              className="bg-brand-purple/10 hover:bg-brand-purple text-brand-purple hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm"
                                             >
                                                Grant Bonus
                                             </button>
@@ -408,7 +456,10 @@ const MasterControl: React.FC = () => {
                              </tbody>
                           </table>
                           {currentStudents.length === 0 && (
-                            <div className="p-8 text-center text-slate-400">No students enrolled.</div>
+                            <div className="p-12 text-center text-slate-400 bg-slate-50/50">
+                                <div className="mb-2 opacity-30"><UserCheck size={32} className="mx-auto" /></div>
+                                No students currently enrolled in this event.
+                            </div>
                           )}
                        </div>
                     </div>

@@ -20,8 +20,13 @@ const AnimatedCounter = ({ value }: { value: number }) => {
 };
 
 const Score: React.FC<ScoreProps> = ({ bonus }) => {
-  // Cleared mock scores
-  const scores: { title: string; score: number; color: string }[] = [];
+  // Mock performance data based on bonus points scaling
+  const scores: { title: string; score: number; color: string }[] = [
+    { title: "Engagement Activity", score: Math.min(100, Math.round((bonus / 1000) * 80) + 20), color: "bg-brand-pink" },
+    { title: "Event Participation", score: Math.min(100, Math.round((bonus / 800) * 70) + 10), color: "bg-brand-purple" },
+    { title: "Social Connect", score: Math.min(100, Math.round((bonus / 1200) * 90) + 15), color: "bg-brand-yellow" },
+    { title: "Creative Expression", score: Math.min(100, Math.round((bonus / 900) * 60) + 30), color: "bg-brand-orange" }
+  ];
 
   return (
     <div className="space-y-6">
@@ -49,12 +54,16 @@ const Score: React.FC<ScoreProps> = ({ bonus }) => {
             
             <div className="flex gap-4">
                 <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 text-center border border-white/10 min-w-[100px]">
-                    <div className="text-2xl font-bold text-brand-pink mb-1">--</div>
+                    <div className="text-2xl font-bold text-brand-pink mb-1">
+                         {bonus > 500 ? 'Top 10%' : bonus > 200 ? 'Top 30%' : '--'}
+                    </div>
                     <div className="text-xs text-slate-300">Rank</div>
                 </div>
                 <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 text-center border border-white/10 min-w-[100px]">
-                    <div className="text-2xl font-bold text-brand-purple mb-1">--%</div>
-                    <div className="text-xs text-slate-300">Accuracy</div>
+                    <div className="text-2xl font-bold text-brand-purple mb-1">
+                        {Math.min(100, Math.round(bonus / 10))}%
+                    </div>
+                    <div className="text-xs text-slate-300">Progress</div>
                 </div>
             </div>
          </div>

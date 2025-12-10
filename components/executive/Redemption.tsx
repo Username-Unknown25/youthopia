@@ -24,40 +24,41 @@ const Redemption: React.FC = () => {
           </span>
        </div>
        
-       <div className="grid grid-cols-1 gap-4">
+       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           <AnimatePresence>
              {pendingRequests.length > 0 ? pendingRequests.map(req => (
                <motion.div
                  key={req.id}
-                 exit={{ opacity: 0, x: -20 }}
-                 className="bg-[#111] border border-white/10 p-4 rounded-xl flex items-center justify-between group hover:border-yellow-500/30 transition-colors"
+                 exit={{ opacity: 0, scale: 0.9 }}
+                 className="bg-[#111] border border-white/10 p-5 rounded-2xl flex items-center justify-between group hover:border-yellow-500/30 transition-colors shadow-sm"
                >
-                  <div className="flex items-center gap-4">
-                     <div className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center text-yellow-500">
+                  <div className="flex items-center gap-4 min-w-0">
+                     <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center text-yellow-500 shrink-0">
                         <Clock size={20} />
                      </div>
-                     <div>
-                        <h3 className="font-bold text-white">{req.item}</h3>
-                        <p className="text-sm text-slate-400">{req.user} • <span className="text-yellow-500 font-mono">{req.cost} Bonus</span></p>
+                     <div className="min-w-0">
+                        <h3 className="font-bold text-white truncate">{req.item}</h3>
+                        <p className="text-sm text-slate-400 truncate max-w-[150px]">{req.user}</p>
+                        <p className="text-xs text-yellow-500 font-mono mt-1">{req.cost} Bonus Points</p>
                      </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 shrink-0">
                      <button 
                         onClick={() => process(req.id, 'Rejected')}
-                        className="p-2 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500/20" title="Reject"
+                        className="p-3 bg-red-500/10 text-red-400 rounded-xl hover:bg-red-500/20 transition-colors" title="Reject"
                      >
                         <X size={18} />
                      </button>
                      <button 
                         onClick={() => process(req.id, 'Approved')}
-                        className="p-2 bg-green-500/10 text-green-400 rounded-lg hover:bg-green-500/20" title="Approve"
+                        className="p-3 bg-green-500/10 text-green-400 rounded-xl hover:bg-green-500/20 transition-colors" title="Approve"
                      >
                         <Check size={18} />
                      </button>
                   </div>
                </motion.div>
              )) : (
-                 <div className="text-center py-20 text-slate-500 border border-white/5 rounded-2xl bg-[#111]">
+                 <div className="col-span-full text-center py-20 text-slate-500 border border-white/5 rounded-2xl bg-[#111]">
                     No pending redemption requests.
                  </div>
              )}

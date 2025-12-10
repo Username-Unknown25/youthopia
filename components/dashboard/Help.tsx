@@ -1,128 +1,142 @@
 
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { HelpCircle, ChevronDown, Mail, Phone, AlertTriangle, MessageCircle } from 'lucide-react';
+import React from 'react';
+import { motion } from 'framer-motion';
+import { Phone, MessageCircle, Activity, Calendar, Wrench, ExternalLink, Globe } from 'lucide-react';
 import Button from '../Button';
 
 const Help: React.FC = () => {
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
-
-  const faqs = [
-    {
-      question: "How do I earn Bonus points?",
-      answer: "You earn bonus points by registering for and attending events. You can also win points by playing the 'Spin the Wheel' game after completing every 4 events."
-    },
-    {
-      question: "Where can I redeem my rewards?",
-      answer: "Go to the 'Redeem' tab in your dashboard. Select an item you can afford with your bonus balance and click 'Redeem'. You can collect your item from the Registration Desk."
-    },
-    {
-      question: "Can I register for overlapping events?",
-      answer: "Technically yes, but we recommend checking the schedule carefully to ensure you can attend both. You only get attendance points if you are physically present."
-    },
-    {
-      question: "I lost my ID card. What should I do?",
-      answer: "Please report to the Help Desk immediately near the Main Entrance. You can also use your digital profile on the 'Me' page as a temporary verification."
-    },
-    {
-      question: "How do I register a full team?",
-      answer: "In the Activities page, select a Team Event. As the leader, you will be asked to enter the Student IDs of all your team members. They must be registered on the app first."
-    }
-  ];
-
   return (
-    <div className="space-y-8 max-w-4xl mx-auto">
-      <div>
-        <h2 className="text-3xl font-bold text-slate-900">Help & Support</h2>
-        <p className="text-slate-500 mt-1">Find answers or get in touch with the festival team.</p>
+    <div className="max-w-4xl mx-auto space-y-10 pb-12">
+      {/* Header */}
+      <div className="text-center pt-4">
+        <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 uppercase tracking-wide">
+          NEED HELP? WE ARE HERE!
+        </h2>
+        <p className="text-slate-500 mt-2 text-lg">Support resources for your well-being.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-         {/* FAQs Section */}
-         <div className="md:col-span-2 space-y-4">
-            <h3 className="font-bold text-slate-800 text-xl mb-4 flex items-center gap-2">
-               <HelpCircle className="text-brand-purple" /> Frequently Asked Questions
+      {/* Tech Support Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6"
+      >
+        <div className="flex items-center gap-5">
+            <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center text-slate-600 shrink-0">
+                <Wrench size={32} />
+            </div>
+            <div className="text-center md:text-left">
+                <h3 className="text-2xl font-bold text-slate-800">TECH SUPPORT</h3>
+                <p className="text-slate-500">Facing technical issues?</p>
+            </div>
+        </div>
+        <div className="flex flex-col items-center md:items-end bg-slate-50 px-8 py-4 rounded-2xl border border-slate-100 w-full md:w-auto">
+            <div className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-1">Reach out to</div>
+            <div className="font-black text-2xl text-slate-900">XXX</div>
+        </div>
+      </motion.div>
+
+      {/* Mental Health Resources Section */}
+      <div>
+        <div className="flex items-center gap-3 mb-8">
+            <span className="w-2 h-8 bg-brand-purple rounded-full"></span>
+            <h3 className="text-2xl font-black text-slate-800 uppercase tracking-wide">
+                MENTAL HEALTH RESOURCES
             </h3>
-            
-            <div className="space-y-3">
-               {faqs.map((faq, idx) => (
-                 <div key={idx} className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
-                    <button 
-                      onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                      className="w-full flex justify-between items-center p-4 text-left font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
-                    >
-                       {faq.question}
-                       <ChevronDown 
-                         size={20} 
-                         className={`text-slate-400 transition-transform duration-300 ${openFaq === idx ? 'rotate-180' : ''}`} 
-                       />
-                    </button>
-                    <AnimatePresence>
-                       {openFaq === idx && (
-                          <motion.div 
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            className="overflow-hidden"
-                          >
-                             <div className="p-4 pt-0 text-slate-500 text-sm leading-relaxed border-t border-slate-50">
-                                {faq.answer}
-                             </div>
-                          </motion.div>
-                       )}
-                    </AnimatePresence>
-                 </div>
-               ))}
-            </div>
-         </div>
+        </div>
 
-         {/* Contact Cards */}
-         <div className="space-y-6">
-            <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-               <h3 className="font-bold text-slate-800 mb-4">Contact Us</h3>
-               <div className="space-y-4">
-                  <div className="flex items-center gap-3 text-slate-600">
-                     <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center text-blue-500">
-                        <Mail size={18} />
-                     </div>
-                     <div>
-                        <div className="text-xs font-bold uppercase text-slate-400">Email Support</div>
-                        <div className="text-sm font-semibold">help@youthopia.com</div>
-                     </div>
-                  </div>
-                  <div className="flex items-center gap-3 text-slate-600">
-                     <div className="w-10 h-10 bg-green-50 rounded-full flex items-center justify-center text-green-500">
-                        <Phone size={18} />
-                     </div>
-                     <div>
-                        <div className="text-xs font-bold uppercase text-slate-400">Helpline</div>
-                        <div className="text-sm font-semibold">+91 98765 43210</div>
-                     </div>
-                  </div>
-               </div>
-               
-               <div className="mt-6 pt-6 border-t border-slate-100">
-                  <Button variant="secondary" fullWidth className="text-sm">
-                     <MessageCircle size={16} className="mr-2" /> Start Live Chat
-                  </Button>
-               </div>
-            </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Helpline Card */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="bg-gradient-to-br from-[#fdf4ff] to-white p-8 rounded-3xl border border-purple-100 shadow-sm md:col-span-2 relative overflow-hidden"
+            >
+                <div className="absolute top-0 right-0 p-20 bg-purple-500/5 rounded-bl-full pointer-events-none" />
+                
+                <div className="relative z-10 flex flex-col md:flex-row gap-6 items-start">
+                    <div className="p-4 bg-purple-100 text-purple-600 rounded-2xl shrink-0">
+                        <Phone size={32} />
+                    </div>
+                    <div className="flex-1 w-full">
+                        <h4 className="font-bold text-xl md:text-2xl text-slate-900 mb-2">24X7 MENTAL HEALTH HELPLINE</h4>
+                        <p className="text-slate-500 mb-6">Always available to listen and support.</p>
+                        
+                        <div className="flex flex-col md:flex-row gap-4">
+                            <a href="tel:1800120820050" className="flex-1 flex items-center justify-center gap-3 bg-white px-6 py-4 rounded-xl border border-purple-200 shadow-sm hover:shadow-md transition-shadow group">
+                                <Phone size={20} className="text-purple-600 group-hover:scale-110 transition-transform" />
+                                <span className="font-bold text-slate-800 text-lg">1800 120 820 050</span>
+                            </a>
+                            <a href="https://mpowerminds.com/chat" target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-3 bg-brand-purple text-white px-6 py-4 rounded-xl shadow-lg hover:bg-purple-700 transition-colors shadow-purple-500/30">
+                                <MessageCircle size={20} />
+                                <span className="font-bold text-lg">Chat with us</span>
+                            </a>
+                        </div>
+                        <div className="mt-4 text-center md:text-left">
+                            <a href="https://mpowerminds.com/chat" target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-brand-purple hover:underline flex items-center gap-1 justify-center md:justify-start">
+                                <Globe size={14} /> mpowerminds.com/chat
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </motion.div>
 
-            <div className="bg-red-50 p-6 rounded-3xl border border-red-100">
-               <h3 className="font-bold text-red-700 mb-2 flex items-center gap-2">
-                  <AlertTriangle size={20} /> Emergency
-               </h3>
-               <p className="text-xs text-red-600 mb-4">
-                  For medical emergencies or security issues, please contact the on-ground response team immediately.
-               </p>
-               <div className="text-2xl font-black text-red-600 tracking-wider">
-                  108 <span className="text-sm font-normal text-red-400 ml-1">(Ambulance)</span>
-               </div>
-               <div className="text-lg font-bold text-red-600 mt-1">
-                  Ext: 555 <span className="text-sm font-normal text-red-400 ml-1">(Security)</span>
-               </div>
-            </div>
-         </div>
+            {/* Score Card */}
+            <motion.div
+                 initial={{ opacity: 0, y: 20 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 transition={{ delay: 0.2 }}
+                 className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm flex flex-col"
+            >
+                <div className="w-14 h-14 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center mb-6">
+                    <Activity size={28} />
+                </div>
+                <h4 className="font-bold text-xl text-slate-900 mb-3">Check Mental Health Score</h4>
+                <p className="text-slate-500 text-sm mb-8 flex-1 leading-relaxed">
+                    The results of this questionnaire will help you in understanding where you belong on the mental health spectrum.
+                </p>
+                
+                <div className="space-y-3">
+                    <a href="https://mpowerminds.com/score" target="_blank" rel="noopener noreferrer" className="block">
+                        <Button variant="secondary" fullWidth className="gap-2 py-4">
+                            Check Score Now <ExternalLink size={18} />
+                        </Button>
+                    </a>
+                    <a href="https://mpowerminds.com/score" target="_blank" rel="noopener noreferrer" className="block text-center text-xs font-bold text-slate-400 hover:text-slate-600 transition-colors">
+                        mpowerminds.com/score
+                    </a>
+                </div>
+            </motion.div>
+
+            {/* Appointments Card */}
+            <motion.div
+                 initial={{ opacity: 0, y: 20 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 transition={{ delay: 0.3 }}
+                 className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm flex flex-col"
+            >
+                <div className="w-14 h-14 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mb-6">
+                    <Calendar size={28} />
+                </div>
+                <h4 className="font-bold text-xl text-slate-900 mb-3">Book Appointments</h4>
+                <p className="text-slate-500 text-sm mb-6">
+                    Schedule a consultation with our professionals.
+                </p>
+                
+                <div className="mt-auto space-y-4">
+                    <a href="tel:+917045566526" className="flex items-center justify-center gap-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl py-4 transition-colors group">
+                         <Phone size={20} className="text-slate-400 group-hover:text-blue-500 transition-colors" />
+                         <span className="text-lg font-bold text-slate-800">+91 704 556 6526</span>
+                    </a>
+                    <div className="bg-blue-50/50 p-4 rounded-xl text-center border border-blue-100">
+                        <div className="text-xs font-bold text-blue-400 uppercase tracking-wider mb-1">Available Timings</div>
+                        <div className="text-sm font-bold text-blue-900">10 AM to 5 PM</div>
+                        <div className="text-xs font-medium text-blue-700">Monday & Saturday</div>
+                    </div>
+                </div>
+            </motion.div>
+        </div>
       </div>
     </div>
   );

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, X, Clock, ShoppingBag, CheckCircle2, XCircle, History, List } from 'lucide-react';
@@ -139,22 +140,22 @@ const Redemption: React.FC = () => {
              <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="p-6"
+                className="overflow-x-auto"
              >
-                 <table className="w-full text-left border-collapse">
+                 <table className="w-full text-left border-collapse min-w-[600px]">
                     <thead className="bg-slate-50 text-xs font-bold text-slate-500 uppercase tracking-wider">
                         <tr>
-                            <th className="p-3">Request ID</th>
+                            <th className="p-3 pl-6">Request ID</th>
                             <th className="p-3">Item</th>
                             <th className="p-3">Student</th>
                             <th className="p-3">Status</th>
-                            <th className="p-3 text-right">Processed At</th>
+                            <th className="p-3 text-right pr-6">Processed At</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 text-sm">
                         {historyRequests.length > 0 ? historyRequests.map((req) => (
                             <tr key={req.id} className="hover:bg-slate-50">
-                                <td className="p-3 font-mono text-slate-400">{req.id}</td>
+                                <td className="p-3 pl-6 font-mono text-slate-400">{req.id}</td>
                                 <td className="p-3 font-semibold text-slate-800">{req.item}</td>
                                 <td className="p-3 text-slate-600">{req.user}</td>
                                 <td className="p-3">
@@ -163,7 +164,7 @@ const Redemption: React.FC = () => {
                                         {req.status}
                                     </span>
                                 </td>
-                                <td className="p-3 text-right text-slate-400 font-mono text-xs">{req.time}</td>
+                                <td className="p-3 text-right pr-6 text-slate-400 font-mono text-xs">{req.time}</td>
                             </tr>
                         )) : (
                             <tr>

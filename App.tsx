@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import SplashScreen from './components/SplashScreen';
@@ -6,7 +7,6 @@ import AuthPage from './components/AuthPage';
 import StudentDashboard from './components/StudentDashboard';
 import AdminDashboard from './components/AdminDashboard';
 import ExecutiveDashboard from './components/ExecutiveDashboard';
-import FestivalChat from './components/FestivalChat';
 import { ViewState, UserData } from './types';
 
 const App: React.FC = () => {
@@ -34,7 +34,7 @@ const App: React.FC = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.3 }}
           >
             <LandingPage onNavigateAuth={() => setCurrentView('auth')} />
           </motion.div>
@@ -46,7 +46,7 @@ const App: React.FC = () => {
             initial={{ opacity: 0, x: '100%' }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: '100%' }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            transition={{ type: "spring", stiffness: 400, damping: 30 }}
           >
             <AuthPage 
               onBack={() => setCurrentView('landing')} 
@@ -60,23 +60,23 @@ const App: React.FC = () => {
            return (
              <motion.div
               key="executive-dashboard"
-              initial={{ opacity: 0, scale: 0.95 }}
+              initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.6 }}
+              transition={{ duration: 0.3 }}
              >
                 <ExecutiveDashboard onLogout={() => setCurrentView('landing')} />
              </motion.div>
            );
         }
-        if (user?.adminId) {
+        if (user?.role === 'admin') {
           return (
             <motion.div
               key="admin-dashboard"
-              initial={{ opacity: 0, scale: 0.9 }}
+              initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.4 }}
+              transition={{ duration: 0.3 }}
             >
                <AdminDashboard onLogout={() => setCurrentView('landing')} />
             </motion.div>
@@ -85,10 +85,10 @@ const App: React.FC = () => {
         return (
           <motion.div
             key="student-dashboard"
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.4 }}
+            transition={{ duration: 0.3 }}
           >
              <StudentDashboard user={user} onLogout={() => setCurrentView('landing')} initialBonus={initialBonus} />
           </motion.div>
@@ -103,13 +103,6 @@ const App: React.FC = () => {
       <AnimatePresence mode="wait">
         {renderView()}
       </AnimatePresence>
-      
-      {/* 
-        Persistent Chat Assistant
-        Show on Landing, Auth and Dashboard, hidden on Splash 
-        Hide on Admin/Executive Dashboard for a cleaner UI.
-      */}
-      {currentView !== 'splash' && !user?.adminId && !user?.role && <FestivalChat />}
     </div>
   );
 };

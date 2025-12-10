@@ -1,6 +1,7 @@
+
 import React, { useEffect, useState } from 'react';
 import { motion, useMotionValue, useTransform, animate, AnimatePresence } from 'framer-motion';
-import { Activity, ShoppingBag, Sparkles, Trophy, Lock, CheckCircle2, ChevronRight, HelpCircle, CircleCheck, CircleAlert } from 'lucide-react';
+import { Sparkles, Trophy, Lock, ChevronRight, CircleCheck, CircleAlert } from 'lucide-react';
 import Button from '../Button';
 
 interface BonusProps {
@@ -11,38 +12,6 @@ interface BonusProps {
   onSpinUsed: () => void;
   onNavigateToRedeem: () => void;
 }
-
-interface Question {
-  id: number;
-  question: string;
-  options: string[];
-  type: 'single' | 'multi';
-}
-
-const QUESTION_BANK: Question[] = [
-  // Social Media
-  { id: 1, type: 'single', question: "On average, how many hours per day do you spend on social media?", options: ["Less than 1 hour", "1-2 hours", "3-4 hours", "5-6 hours", "More than 6 hours"] },
-  { id: 2, type: 'single', question: "How often do you compare yourself to others based on what you see on social media?", options: ["Never", "Rarely", "Sometimes", "Often", "Always"] },
-  { id: 3, type: 'single', question: "After spending time on social media, how do you typically feel about yourself?", options: ["Much more positive", "Slightly more positive", "No change", "Slightly more negative", "Much more negative"] },
-  { id: 4, type: 'multi', question: "In the past 6 months, has social media made you feel any of the following? (Select all that apply)", options: ["More confident about myself", "Anxious about my appearance", "Left out or excluded", "Pressure to present a perfect image", "Inspired or motivated", "Inadequate compared to others", "Connected to friends/community", "None of the above"] },
-  
-  // Rumination
-  { id: 5, type: 'single', question: "How often do you find yourself replaying past negative experiences in your mind?", options: ["Never or rarely", "Sometimes (1-2 times per week)", "Often (3-5 times per week)", "Very often (almost daily)", "Constantly (multiple times daily)"] },
-  { id: 6, type: 'single', question: "When you think about difficult situations from your past, do you:", options: ["Actively try to understand and move forward", "Think about them occasionally but don't dwell", "Find it difficult to stop thinking about them", "Feel stuck reliving the same thoughts repeatedly", "Intentionally revisit them to process feelings"] },
-  { id: 7, type: 'single', question: "Which statement best describes how you relate to your past negative experiences?", options: ["They are part of my history but don’t define who I am.", "I have learned from them and mostly moved on.", "I think about them regularly, and they influence my current identity.", "They are central to understanding who I am and how I see myself.", "I actively work to not let them define me."] },
-  { id: 8, type: 'multi', question: "In the past month, have you repeatedly thought about negative experiences affecting any of the following? (Select all that apply)", options: ["My academic performance", "My relationships with friends/family", "My mood or emotional well-being", "My ability to trust others", "My self-confidence", "My physical health (sleep, appetite, etc.)", "My sense of personal agency/control", "None of the above"] },
-
-  // Body Image
-  { id: 9, type: 'single', question: "On average, how many hours per day do you spend viewing beauty, fashion, fitness, or lifestyle content on social media?", options: ["Less than 30 minutes", "30 minutes to 1 hour", "1-2 hours", "3-4 hours", "More than 4 hours"] },
-  { id: 10, type: 'multi', question: "Which beauty standards do you feel most pressured by? (Select all that apply)", options: ["Fair/light skin tone", "Slim body type", "Western facial features", "Traditional Indian beauty ideals", "Influencer/celebrity aesthetics", "Perfect skin (acne-free, blemish-free)", "Specific body measurements", "None of the above"] },
-  { id: 11, type: 'single', question: "How often do you compare your appearance to Indian celebrities/influencers?", options: ["Never", "Rarely", "Sometimes", "Often", "Always"] },
-  { id: 12, type: 'multi', question: "In the past 6 months, has social media content about beauty/appearance made you feel: (Select all that apply)", options: ["Anxious or stressed about my looks", "Motivated to improve my appearance", "Ashamed of my body or features", "Pressure to use beauty products/treatments", "A desire to edit or filter my photos", "Inadequate or not good enough", "Inspired and confident", "No significant impact"] },
-
-  // Toxic Relationships
-  { id: 13, type: 'multi', question: "How have toxic relationships affected your mental health? (Select all that apply)", options: ["Anxiety, panic attacks, or constant worry", "Depression or persistent sadness", "Low self-esteem or loss of identity", "Difficulty trusting others", "Post-traumatic stress symptoms", "Sleep disturbances", "Self-harm or suicidal thoughts", "Eating disorders", "Substance use/abuse", "Physical symptoms", "Difficulty setting boundaries", "People-pleasing or fear of conflict", "No significant mental health impact"] },
-  { id: 14, type: 'single', question: "How would you rate your current self-esteem/self-worth in the context of your toxic relationship experiences?", options: ["1. Very Poor", "2. Poor", "3. Neutral", "4. Good", "5. Excellent"] },
-  { id: 15, type: 'multi', question: "What factors have made it harder to leave or avoid toxic relationships? (Select all that apply)", options: ["Financial dependence", "Fear of the person’s reaction", "Cultural or religious expectations", "Family/community pressure", "I still loved them/hoped they would change", "Low self-worth", "I didn't recognize it was toxic until later", "Lack of support system", "Shared living situation/children", "Identity factors", "Mental health challenges", "Disability or chronic illness", "Immigration status", "Not applicable"] }
-];
 
 const AnimatedCounter = ({ value }: { value: number }) => {
   const count = useMotionValue(value);
@@ -61,14 +30,9 @@ const Bonus: React.FC<BonusProps> = ({ bonus, onAddBonus, spinsAvailable, events
   const [rotation, setRotation] = useState(0);
   
   // Game Flow States
-  const [pendingPrize, setPendingPrize] = useState(0); // Points won but not yet awarded
-  const [showQuiz, setShowQuiz] = useState(false);
+  const [pendingPrize, setPendingPrize] = useState(0); 
   const [showResult, setShowResult] = useState(false);
   const [toast, setToast] = useState<{message: string, type: 'success' | 'error'} | null>(null);
-  
-  // Quiz Logic
-  const [currentQuestions, setCurrentQuestions] = useState<Question[]>([]);
-  const [quizAnswers, setQuizAnswers] = useState<Record<number, string | string[]>>({});
 
   // Wheel Segments: 8 segments, 45 degrees each
   // Values: 10, 20, 30, 40 repeated twice
@@ -89,6 +53,7 @@ const Bonus: React.FC<BonusProps> = ({ bonus, onAddBonus, spinsAvailable, events
   const handleSpin = () => {
     if (isSpinning || spinsAvailable <= 0) return;
     setIsSpinning(true);
+    onSpinUsed(); // Deduct spin immediately to prevent double clicks
 
     // Random spin
     const randomSegmentIndex = Math.floor(Math.random() * segments.length);
@@ -98,52 +63,17 @@ const Bonus: React.FC<BonusProps> = ({ bonus, onAddBonus, spinsAvailable, events
 
     setRotation(rotation + targetRotation);
 
+    // Faster spin: 2.5s duration
     setTimeout(() => {
       const prize = segments[randomSegmentIndex];
       setPendingPrize(prize);
       setIsSpinning(false);
       
-      // Step 2: Prepare and Show Quiz
-      const shuffled = [...QUESTION_BANK].sort(() => 0.5 - Math.random());
-      setCurrentQuestions(shuffled.slice(0, 3));
-      setQuizAnswers({}); // Reset answers
-      onSpinUsed(); // Deduct spin
-      setShowQuiz(true);
-    }, 4000);
-  };
-
-  const handleAnswerChange = (qId: number, value: string, type: 'single' | 'multi') => {
-    if (type === 'single') {
-        setQuizAnswers(prev => ({ ...prev, [qId]: value }));
-    } else {
-        setQuizAnswers(prev => {
-            const current = (prev[qId] as string[]) || [];
-            if (current.includes(value)) {
-                return { ...prev, [qId]: current.filter(v => v !== value) };
-            } else {
-                return { ...prev, [qId]: [...current, value] };
-            }
-        });
-    }
-  };
-
-  const submitQuiz = () => {
-      // Validate that all questions have at least one answer
-      const allAnswered = currentQuestions.every(q => {
-          const ans = quizAnswers[q.id];
-          return ans && (Array.isArray(ans) ? ans.length > 0 : !!ans);
-      });
-
-      if (!allAnswered) {
-          alert("Please answer all 3 questions to claim your bonus!");
-          return;
-      }
-
-      // Step 3: Award Points
-      setShowQuiz(false);
-      onAddBonus(pendingPrize);
-      setToast({ message: `Hooray! You won ${pendingPrize} Bonus Points!`, type: 'success' });
+      // Award Points Directly
+      onAddBonus(prize);
+      setToast({ message: `Hooray! You won ${prize} Bonus Points!`, type: 'success' });
       setShowResult(true);
+    }, 2500);
   };
 
   const spinThreshold = 4;
@@ -226,7 +156,7 @@ const Bonus: React.FC<BonusProps> = ({ bonus, onAddBonus, spinsAvailable, events
                <motion.div
                   className="w-full h-full rounded-full border-4 border-yellow-500 shadow-2xl bg-white relative overflow-hidden"
                   animate={{ rotate: rotation }}
-                  transition={{ duration: 4, ease: "circOut" }}
+                  transition={{ duration: 2.5, ease: "circOut" }}
                   style={{ transformOrigin: 'center' }}
                >
                   {spinsAvailable <= 0 && !isSpinning && (
@@ -306,74 +236,6 @@ const Bonus: React.FC<BonusProps> = ({ bonus, onAddBonus, spinsAvailable, events
             </div>
          </motion.div>
       </div>
-
-      {/* QUIZ MODAL */}
-      <AnimatePresence>
-        {showQuiz && (
-            <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
-               <motion.div 
-                 initial={{ scale: 0.9, opacity: 0 }}
-                 animate={{ scale: 1, opacity: 1 }}
-                 className="bg-white rounded-3xl w-full max-w-lg shadow-2xl relative overflow-hidden flex flex-col max-h-[90vh]"
-               >
-                  <div className="bg-brand-purple p-6 text-white text-center relative overflow-hidden">
-                      <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
-                      <HelpCircle className="mx-auto mb-2 opacity-80" size={32} />
-                      <h2 className="text-2xl font-bold">Bonus Unlock Quiz</h2>
-                      <p className="text-white/80 text-sm">Answer 3 quick questions to claim your {pendingPrize} points!</p>
-                  </div>
-                  
-                  <div className="p-6 overflow-y-auto space-y-8 flex-1">
-                      {currentQuestions.map((q, idx) => (
-                          <div key={q.id} className="space-y-3">
-                             <h3 className="font-bold text-slate-800 text-sm md:text-base">
-                                <span className="text-brand-purple mr-2">{idx + 1}.</span>
-                                {q.question}
-                             </h3>
-                             <div className="space-y-2">
-                                {q.options.map((opt) => {
-                                    const isSelected = q.type === 'single' 
-                                        ? quizAnswers[q.id] === opt 
-                                        : (quizAnswers[q.id] as string[] || []).includes(opt);
-                                    
-                                    return (
-                                        <label 
-                                            key={opt} 
-                                            className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
-                                                isSelected ? 'bg-purple-50 border-brand-purple text-purple-900' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                                            }`}
-                                        >
-                                            <div className={`mt-0.5 w-5 h-5 rounded border flex items-center justify-center shrink-0 ${
-                                                isSelected ? 'bg-brand-purple border-brand-purple text-white' : 'bg-white border-slate-300'
-                                            } ${q.type === 'single' ? 'rounded-full' : 'rounded-md'}`}>
-                                                {isSelected && <CheckCircle2 size={14} />}
-                                            </div>
-                                            <input 
-                                                type={q.type === 'single' ? 'radio' : 'checkbox'} 
-                                                className="hidden"
-                                                name={`q-${q.id}`}
-                                                value={opt}
-                                                checked={isSelected}
-                                                onChange={() => handleAnswerChange(q.id, opt, q.type)}
-                                            />
-                                            <span className="text-sm">{opt}</span>
-                                        </label>
-                                    );
-                                })}
-                             </div>
-                          </div>
-                      ))}
-                  </div>
-
-                  <div className="p-4 border-t border-slate-100 bg-slate-50">
-                      <Button fullWidth variant="primary" onClick={submitQuiz}>
-                          Claim My Bonus
-                      </Button>
-                  </div>
-               </motion.div>
-            </div>
-        )}
-      </AnimatePresence>
 
       {/* Result Modal */}
       <AnimatePresence>
@@ -465,7 +327,7 @@ const Bonus: React.FC<BonusProps> = ({ bonus, onAddBonus, spinsAvailable, events
         )}
       </AnimatePresence>
 
-      {/* History Section (Now empty by default) */}
+      {/* History Section */}
       <motion.div 
         initial={{ y: 30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -474,7 +336,20 @@ const Bonus: React.FC<BonusProps> = ({ bonus, onAddBonus, spinsAvailable, events
       >
          <h3 className="font-bold text-slate-800 mb-4">Bonus History</h3>
          <div className="space-y-4">
-            <p className="text-slate-400 text-sm text-center">No history yet.</p>
+            {pendingPrize > 0 ? (
+                <div className="flex justify-between items-center p-2 hover:bg-slate-50 rounded-xl transition-colors">
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center"><Sparkles size={16} /></div>
+                        <div>
+                            <div className="text-sm font-bold">Won Spinner Game</div>
+                            <div className="text-xs text-slate-400">Just now</div>
+                        </div>
+                    </div>
+                    <span className="text-green-600 font-bold">+{pendingPrize}</span>
+                </div>
+            ) : (
+                <p className="text-slate-400 text-sm text-center">No history yet.</p>
+            )}
          </div>
       </motion.div>
     </div>

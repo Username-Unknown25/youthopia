@@ -1,27 +1,36 @@
 
-import React, { useState } from 'react';
+import React, { useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check } from 'lucide-react';
 import { SimpleBarChart } from './Charts';
+import { useData } from '../../contexts/DataContext';
 
 const Feedback: React.FC = () => {
-  const ratings = [
-    { emoji: '🔥', count: 0, label: 'On Fire', color: 'bg-orange-100 text-orange-600' },
-    { emoji: '🤩', count: 0, label: 'Amazing', color: 'bg-yellow-100 text-yellow-600' },
-    { emoji: '😀', count: 0, label: 'Happy', color: 'bg-green-100 text-green-600' },
-    { emoji: '🙂', count: 0, label: 'Good', color: 'bg-blue-100 text-blue-600' },
-    { emoji: '😐', count: 0, label: 'Neutral', color: 'bg-slate-100 text-slate-600' },
-  ];
+  const { feedbacks } = useData();
 
-  const [feedItems, setFeedItems] = useState<{id: number; event: string; user: string; emoji: string; time: string}[]>([]);
+  // Calculate live ratings from real data
+  const ratings = useMemo(() => {
+     const counts: Record<string, number> = { '🔥': 0, '🤩': 0, '😀': 0, '🙂': 0, '😐': 0 };
+     feedbacks.forEach(f => {
+         if (counts[f.emoji] !== undefined) {
+             counts[f.emoji]++;
+         }
+     });
 
-  // Mock Sentiment Data
-  const sentimentData = [20, 45, 60, 80, 50, 65, 30];
+     return [
+        { emoji: '🔥', count: counts['🔥'], label: 'On Fire', color: 'bg-orange-100 text-orange-600' },
+        { emoji: '🤩', count: counts['🤩'], label: 'Amazing', color: 'bg-yellow-100 text-yellow-600' },
+        { emoji: '😀', count: counts['😀'], label: 'Happy', color: 'bg-green-100 text-green-600' },
+        { emoji: '🙂', count: counts['🙂'], label: 'Good', color: 'bg-blue-100 text-blue-600' },
+        { emoji: '😐', count: counts['😐'], label: 'Neutral', color: 'bg-slate-100 text-slate-600' },
+     ];
+  }, [feedbacks]);
+
+  // Use real items for feed
+  const feedItems = feedbacks.slice().reverse().slice(0, 50); // Show last 50
+
+  const sentimentData = [20, 45, 60, 80, 50, 65, 30]; // Keep chart static for now as historical data tracking is complex
   const sentimentLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-
-  const handleArchive = (id: number) => {
-    setFeedItems(prev => prev.filter(item => item.id !== id));
-  };
 
   return (
     <div className="space-y-8">
@@ -60,7 +69,7 @@ const Feedback: React.FC = () => {
             <div className="flex justify-between items-center mb-6">
                 <h3 className="font-bold text-slate-800">Live Feed</h3>
                 <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-bold">
-                    {feedItems.length} New
+                    {feedItems.length} Total
                 </span>
             </div>
             
@@ -74,27 +83,20 @@ const Feedback: React.FC = () => {
                    exit={{ x: -20, opacity: 0, height: 0 }}
                    className="flex items-center gap-4 p-3 rounded-2xl bg-slate-50 group hover:bg-slate-100 transition-colors"
                  >
-                    <div className="text-2xl bg-white w-10 h-10 rounded-full flex items-center justify-center shadow-sm">
+                    <div className="text-2xl bg-white w-10 h-10 rounded-full flex items-center justify-center shadow-sm shrink-0">
                        {fb.emoji}
                     </div>
                     <div className="flex-1 min-w-0">
-                       <p className="text-sm font-bold text-slate-800 truncate">{fb.event}</p>
-                       <p className="text-xs text-slate-500">by {fb.user}</p>
+                       <p className="text-sm font-bold text-slate-800 truncate">{fb.eventName}</p>
+                       <p className="text-xs text-slate-500 truncate">by {fb.userName}</p>
                     </div>
-                    <div className="flex flex-col items-end gap-1">
-                        <span className="text-[10px] text-slate-400 font-medium">{fb.time}</span>
-                        <button 
-                            onClick={() => handleArchive(fb.id)}
-                            className="text-slate-300 hover:text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                            title="Mark as Read"
-                        >
-                            <Check size={14} />
-                        </button>
+                    <div className="flex flex-col items-end gap-1 shrink-0">
+                        <span className="text-[10px] text-slate-400 font-medium">{fb.timestamp}</span>
                     </div>
                  </motion.div>
                )) : (
                  <div className="text-center text-slate-400 py-10">
-                    <p>No new feedback</p>
+                    <p>No feedback received yet</p>
                  </div>
                )}
                </AnimatePresence>

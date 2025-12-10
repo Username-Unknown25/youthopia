@@ -67,6 +67,16 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
               }}
             />
         </div>
+
+        {/* Welcome Text */}
+        <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.8 }}
+            className="text-4xl md:text-5xl font-bold text-white tracking-widest uppercase mt-2 text-center drop-shadow-lg"
+        >
+            Welcome
+        </motion.h1>
       </motion.div>
     </div>
   );

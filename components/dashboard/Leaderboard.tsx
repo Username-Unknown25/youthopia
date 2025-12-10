@@ -20,7 +20,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ bonus = 0 }) => {
 
   const categories: Category[] = ['All', 'Champion', 'Expert', 'Pro', 'Beginner'];
 
-  // Helper to determine category
+  // Helper to determine category based on bonus points
   const getCategory = (pts: number): Category => {
     if (pts >= 700) return 'Champion';
     if (pts >= 451) return 'Expert';
@@ -57,6 +57,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ bonus = 0 }) => {
      return counts;
   }, [rankedLeaders]);
 
+  // Filter Logic
   const filteredLeaders = rankedLeaders.filter(l => {
     // 1. Text Search
     const matchesSearch = l.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -150,7 +151,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ bonus = 0 }) => {
              <button
                key={cat}
                onClick={() => setActiveCategory(cat)}
-               className={`relative px-4 py-2 rounded-full text-sm font-bold transition-all border flex items-center gap-2 ${
+               className={`relative px-4 py-2 rounded-full text-sm font-bold transition-all border flex items-center gap-2 overflow-hidden ${
                    activeCategory === cat 
                      ? 'border-transparent text-white shadow-lg shadow-brand-purple/20' 
                      : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'
@@ -159,15 +160,16 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ bonus = 0 }) => {
                 {activeCategory === cat && (
                    <motion.div
                      layoutId="activeCategory"
-                     className="absolute inset-0 bg-brand-purple rounded-full -z-10"
+                     className="absolute inset-0 bg-brand-purple"
                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                    />
                 )}
+                {/* Ensure text is on top with z-10 */}
                 <span className="relative z-10 flex items-center gap-2">
                     {cat !== 'All' && getCategoryIcon(cat)}
                     {cat}
                 </span>
-                <span className={`text-[10px] py-0.5 px-1.5 rounded-full ${activeCategory === cat ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'}`}>
+                <span className={`relative z-10 text-[10px] py-0.5 px-1.5 rounded-full ${activeCategory === cat ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'}`}>
                     {categoryCounts[cat] || 0}
                 </span>
              </button>
@@ -332,7 +334,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ bonus = 0 }) => {
              <div className="p-2 bg-green-100 text-green-600 rounded-lg"><Zap size={16} /></div>
              <div>
                  <div className="text-xs text-green-800 font-bold uppercase">Beginner</div>
-                 <div className="text-xs text-green-600">150 - 300 Bonus</div>
+                 <div className="text-xs text-green-600">0 - 300 Bonus</div>
              </div>
          </div>
       </div>

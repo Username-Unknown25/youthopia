@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Phone, Lock, Eye, EyeOff, User, GraduationCap, Building, Layers, Info, ShieldCheck, Check, AlertCircle, Mail } from 'lucide-react';
@@ -51,15 +52,28 @@ const AuthPage: React.FC<AuthPageProps> = ({ onBack, onLogin }) => {
             return;
         }
 
-        // 2. Admin Login
+        // 2. Admin/Executive Login
         if (activeTab === 'admin') {
-            const { user, error: loginError } = await login(formData.adminId === '123456' ? 'admin@youthopia.com' : 'executive@youthopia.com', formData.password);
+            const inputId = formData.adminId.trim();
+            let emailToAuth = '';
+            
+            // Explicitly route based on ID
+            if (inputId === '123456' || inputId.toLowerCase() === 'admin' || inputId.toLowerCase() === 'admin@youthopia.com') {
+                emailToAuth = 'admin@youthopia.com';
+            } else if (inputId === '789' || inputId.toLowerCase() === 'executive' || inputId.toLowerCase() === 'executive@youthopia.com') {
+                emailToAuth = 'executive@youthopia.com';
+            } else {
+                setError("Invalid Admin or Executive ID.");
+                setIsLoading(false);
+                return;
+            }
+
+            const { user, error: loginError } = await login(emailToAuth, formData.password);
             
             if (user) {
                 onLogin(user);
             } else {
-                // Fallback for custom logic inside controller if needed, or just show error
-                setError("Invalid Admin ID or Password.");
+                setError(loginError || "Invalid Password.");
             }
             setIsLoading(false);
             return;
@@ -172,7 +186,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onBack, onLogin }) => {
     <div className="min-h-screen flex items-center justify-center bg-brand-dark px-4 py-8 relative font-sans">
       
       {/* Background Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-brand-purple/5 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-brand-purple/5 rounded-full blur-[100px] pointer-events-none" />
 
       <motion.div 
         initial={{ opacity: 0, scale: 0.95 }}

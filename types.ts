@@ -55,3 +55,13 @@ export interface EventData {
   maxMembers?: number;
   points?: number;
 }
+
+export interface FeedbackItem {
+  id: string;
+  eventId: string;
+  eventName: string;
+  userEmail: string;
+  userName: string;
+  emoji: string;
+  timestamp: string;
+}

@@ -1,12 +1,14 @@
+
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, Calendar, Search, Filter, Edit, Trash2, Plus, X, Download } from 'lucide-react';
+import { Users, Calendar, Search, Filter, Edit, Trash2, Plus, X, Download, Eye, CheckCircle2, Info } from 'lucide-react';
 import Input from '../Input';
 import Button from '../Button';
 import { useData } from '../../contexts/DataContext';
+import { UserData } from '../../types';
 
 const UsersEvents: React.FC = () => {
-  const { users, events, addUser, deleteUser, addEvent, deleteEvent } = useData();
+  const { users, events, addUser, deleteUser, addEvent, deleteEvent, registrations, completedEvents } = useData();
   const [activeTab, setActiveTab] = useState<'users' | 'events'>('users');
   const [searchQuery, setSearchQuery] = useState('');
   
@@ -14,8 +16,11 @@ const UsersEvents: React.FC = () => {
   const [showUserModal, setShowUserModal] = useState(false);
   const [showEventModal, setShowEventModal] = useState(false);
   
+  // Activity View State
+  const [selectedUserForActivity, setSelectedUserForActivity] = useState<UserData | null>(null);
+  
   // Form States
-  const [newUser, setNewUser] = useState({ name: '', school: '', class: '', stream: '' });
+  const [newUser, setNewUser] = useState({ name: '', email: '', school: '', class: '', stream: '' });
   const [newEvent, setNewEvent] = useState({ title: '', category: 'Intercollegiate', date: '', loc: '' });
 
   // --- ACTIONS ---
@@ -45,7 +50,7 @@ const UsersEvents: React.FC = () => {
 
   const handleAddUser = () => {
     addUser({
-        email: `student${users.length+1}@example.com`, // Auto-generate for manual add
+        email: newUser.email || `student${users.length+1}@example.com`,
         name: newUser.name,
         school: newUser.school,
         class: newUser.class,
@@ -57,7 +62,7 @@ const UsersEvents: React.FC = () => {
         bonus: 0
     });
     setShowUserModal(false);
-    setNewUser({ name: '', school: '', class: '', stream: '' });
+    setNewUser({ name: '', email: '', school: '', class: '', stream: '' });
   };
 
   const handleDeleteEvent = (id: string) => {
@@ -83,6 +88,19 @@ const UsersEvents: React.FC = () => {
     });
     setShowEventModal(false);
     setNewEvent({ title: '', category: 'Intercollegiate', date: '', loc: '' });
+  };
+
+  const getUserActivities = (email: string) => {
+      const regIds = registrations[email] || [];
+      const compIds = completedEvents[email] || [];
+      return regIds.map(id => {
+          const evt = events.find(e => e.id === id);
+          if (!evt) return null;
+          return {
+              ...evt,
+              status: compIds.includes(id) ? 'Completed' : 'Registered'
+          };
+      }).filter(Boolean);
   };
 
   // --- FILTERING ---
@@ -162,93 +180,103 @@ const UsersEvents: React.FC = () => {
         className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden"
       >
          {activeTab === 'users' ? (
-           <table className="w-full text-left border-collapse">
-              <thead className="bg-slate-50 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-100">
-                 <tr>
-                    <th className="p-4 pl-6">ID / Email</th>
-                    <th className="p-4">Name</th>
-                    <th className="p-4 hidden md:table-cell">School</th>
-                    <th className="p-4 hidden md:table-cell">Class/Stream</th>
-                    <th className="p-4">Bonus</th>
-                    <th className="p-4 text-right pr-6">Actions</th>
-                 </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-sm">
-                 <AnimatePresence>
-                 {filteredUsers.length > 0 ? filteredUsers.map(user => (
-                    <motion.tr 
-                        key={user.email} 
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0, height: 0 }}
-                        className="hover:bg-slate-50 transition-colors"
-                    >
-                       <td className="p-4 pl-6 font-mono text-slate-400 truncate max-w-[150px]" title={user.email}>{user.email}</td>
-                       <td className="p-4 font-bold text-slate-800">{user.name}</td>
-                       <td className="p-4 hidden md:table-cell text-slate-600">{user.school}</td>
-                       <td className="p-4 hidden md:table-cell text-slate-500">{user.class} - {user.stream}</td>
-                       <td className="p-4 font-bold text-brand-purple">{user.bonus}</td>
-                       <td className="p-4 text-right pr-6 flex justify-end gap-2">
-                          <button className="p-2 hover:bg-slate-200 rounded-lg text-slate-500"><Edit size={16} /></button>
-                          <button onClick={() => handleDeleteUser(user.email)} className="p-2 hover:bg-red-100 rounded-lg text-red-500"><Trash2 size={16} /></button>
-                       </td>
-                    </motion.tr>
-                 )) : (
-                    <tr>
-                        <td colSpan={6} className="p-8 text-center text-slate-400">No students found matching "{searchQuery}"</td>
-                    </tr>
-                 )}
-                 </AnimatePresence>
-              </tbody>
-           </table>
+           <div className="overflow-x-auto">
+             <table className="w-full text-left border-collapse min-w-[700px]">
+                <thead className="bg-slate-50 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-100">
+                   <tr>
+                      <th className="p-4 pl-6">ID / Email</th>
+                      <th className="p-4">Name</th>
+                      <th className="p-4 hidden md:table-cell">School</th>
+                      <th className="p-4 hidden md:table-cell">Activity</th>
+                      <th className="p-4">Bonus</th>
+                      <th className="p-4 text-right pr-6">Actions</th>
+                   </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-sm">
+                   <AnimatePresence>
+                   {filteredUsers.length > 0 ? filteredUsers.map(user => {
+                       const acts = getUserActivities(user.email);
+                       return (
+                      <motion.tr 
+                          key={user.email} 
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="hover:bg-slate-50 transition-colors"
+                      >
+                         <td className="p-4 pl-6 font-mono text-slate-400 truncate max-w-[150px]" title={user.email}>{user.email}</td>
+                         <td className="p-4 font-bold text-slate-800">{user.name}</td>
+                         <td className="p-4 hidden md:table-cell text-slate-600">{user.school}</td>
+                         <td className="p-4 hidden md:table-cell">
+                            <button onClick={() => setSelectedUserForActivity(user)} className="text-brand-purple hover:underline text-xs font-bold flex items-center gap-1">
+                               <Eye size={12} /> {acts.length} Events
+                            </button>
+                         </td>
+                         <td className="p-4 font-bold text-brand-purple">{user.bonus}</td>
+                         <td className="p-4 text-right pr-6 flex justify-end gap-2">
+                            <button className="p-2 hover:bg-slate-200 rounded-lg text-slate-500"><Edit size={16} /></button>
+                            <button onClick={() => handleDeleteUser(user.email)} className="p-2 hover:bg-red-100 rounded-lg text-red-500"><Trash2 size={16} /></button>
+                         </td>
+                      </motion.tr>
+                   )}) : (
+                      <tr>
+                          <td colSpan={6} className="p-8 text-center text-slate-400">No students found matching "{searchQuery}"</td>
+                      </tr>
+                   )}
+                   </AnimatePresence>
+                </tbody>
+             </table>
+           </div>
          ) : (
-           <table className="w-full text-left border-collapse">
-              <thead className="bg-slate-50 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-100">
-                 <tr>
-                    <th className="p-4 pl-6">Event Name</th>
-                    <th className="p-4">Category</th>
-                    <th className="p-4 hidden md:table-cell">Date/Time</th>
-                    <th className="p-4 hidden md:table-cell">Capacity</th>
-                    <th className="p-4">Status</th>
-                    <th className="p-4 text-right pr-6">Actions</th>
-                 </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-sm">
-                 <AnimatePresence>
-                 {filteredEvents.length > 0 ? filteredEvents.map(event => (
-                    <motion.tr 
-                        key={event.id} 
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0, height: 0 }}
-                        className="hover:bg-slate-50 transition-colors"
-                    >
-                       <td className="p-4 pl-6 font-bold text-slate-800">{event.title}</td>
-                       <td className="p-4">
-                          <span className={`px-2 py-1 rounded-full text-xs font-bold ${event.category === 'Intercollegiate' ? 'bg-purple-100 text-purple-700' : 'bg-pink-100 text-pink-700'}`}>
-                             {event.category}
-                          </span>
-                       </td>
-                       <td className="p-4 hidden md:table-cell text-slate-500">{event.date}, {event.time}</td>
-                       <td className="p-4 hidden md:table-cell text-slate-600">--</td>
-                       <td className="p-4">
-                          <span className="text-green-600 font-bold text-xs flex items-center gap-1">
-                             <div className="w-2 h-2 rounded-full bg-green-500" /> Active
-                          </span>
-                       </td>
-                       <td className="p-4 text-right pr-6 flex justify-end gap-2">
-                          <button className="p-2 hover:bg-slate-200 rounded-lg text-slate-500"><Edit size={16} /></button>
-                          <button onClick={() => handleDeleteEvent(event.id)} className="p-2 hover:bg-red-100 rounded-lg text-red-500"><Trash2 size={16} /></button>
-                       </td>
-                    </motion.tr>
-                 )) : (
-                    <tr>
-                        <td colSpan={6} className="p-8 text-center text-slate-400">No events found matching "{searchQuery}"</td>
-                    </tr>
-                 )}
-                 </AnimatePresence>
-              </tbody>
-           </table>
+           <div className="overflow-x-auto">
+             <table className="w-full text-left border-collapse min-w-[700px]">
+                <thead className="bg-slate-50 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-100">
+                   <tr>
+                      <th className="p-4 pl-6">Event Name</th>
+                      <th className="p-4">Category</th>
+                      <th className="p-4 hidden md:table-cell">Date/Time</th>
+                      <th className="p-4 hidden md:table-cell">Capacity</th>
+                      <th className="p-4">Status</th>
+                      <th className="p-4 text-right pr-6">Actions</th>
+                   </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-sm">
+                   <AnimatePresence>
+                   {filteredEvents.length > 0 ? filteredEvents.map(event => (
+                      <motion.tr 
+                          key={event.id} 
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="hover:bg-slate-50 transition-colors"
+                      >
+                         <td className="p-4 pl-6 font-bold text-slate-800">{event.title}</td>
+                         <td className="p-4">
+                            <span className={`px-2 py-1 rounded-full text-xs font-bold ${event.category === 'Intercollegiate' ? 'bg-purple-100 text-purple-700' : 'bg-pink-100 text-pink-700'}`}>
+                               {event.category}
+                            </span>
+                         </td>
+                         <td className="p-4 hidden md:table-cell text-slate-500">{event.date}, {event.time}</td>
+                         <td className="p-4 hidden md:table-cell text-slate-600">--</td>
+                         <td className="p-4">
+                            <span className="text-green-600 font-bold text-xs flex items-center gap-1">
+                               <div className="w-2 h-2 rounded-full bg-green-500" /> Active
+                            </span>
+                         </td>
+                         <td className="p-4 text-right pr-6 flex justify-end gap-2">
+                            <button className="p-2 hover:bg-slate-200 rounded-lg text-slate-500"><Edit size={16} /></button>
+                            <button onClick={() => handleDeleteEvent(event.id)} className="p-2 hover:bg-red-100 rounded-lg text-red-500"><Trash2 size={16} /></button>
+                         </td>
+                      </motion.tr>
+                   )) : (
+                      <tr>
+                          <td colSpan={6} className="p-8 text-center text-slate-400">No events found matching "{searchQuery}"</td>
+                      </tr>
+                   )}
+                   </AnimatePresence>
+                </tbody>
+             </table>
+           </div>
          )}
       </motion.div>
 
@@ -262,12 +290,47 @@ const UsersEvents: React.FC = () => {
                  </div>
                  <div className="space-y-4">
                     <Input variant="light" placeholder="Full Name" value={newUser.name} onChange={e => setNewUser({...newUser, name: e.target.value})} />
+                    <Input variant="light" placeholder="Email Address" type="email" value={newUser.email} onChange={e => setNewUser({...newUser, email: e.target.value})} />
                     <Input variant="light" placeholder="School/College" value={newUser.school} onChange={e => setNewUser({...newUser, school: e.target.value})} />
                     <div className="grid grid-cols-2 gap-4">
                         <Input variant="light" placeholder="Class" value={newUser.class} onChange={e => setNewUser({...newUser, class: e.target.value})} />
                         <Input variant="light" placeholder="Stream" value={newUser.stream} onChange={e => setNewUser({...newUser, stream: e.target.value})} />
                     </div>
                     <Button fullWidth onClick={handleAddUser} className="mt-4">Create Student</Button>
+                 </div>
+             </div>
+          </div>
+      )}
+
+      {/* --- ACTIVITY LOG MODAL --- */}
+      {selectedUserForActivity && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+             <div className="bg-white rounded-3xl p-6 w-full max-w-lg shadow-2xl max-h-[80vh] flex flex-col">
+                 <div className="flex justify-between items-center mb-4 border-b border-slate-100 pb-4">
+                    <div>
+                        <h3 className="text-lg font-bold text-slate-800">{selectedUserForActivity.name}</h3>
+                        <p className="text-xs text-slate-400">Activity Log</p>
+                    </div>
+                    <button onClick={() => setSelectedUserForActivity(null)} className="text-slate-400 hover:text-slate-600"><X size={20}/></button>
+                 </div>
+                 
+                 <div className="overflow-y-auto flex-1 space-y-2 pr-1">
+                    {getUserActivities(selectedUserForActivity.email).length > 0 ? (
+                        getUserActivities(selectedUserForActivity.email).map((evt: any) => (
+                           <div key={evt.id} className={`p-3 rounded-xl border flex justify-between items-center ${evt.status === 'Completed' ? 'bg-green-50 border-green-200' : 'bg-slate-50 border-slate-200'}`}>
+                              <div>
+                                 <div className="font-bold text-slate-800 text-sm">{evt.title}</div>
+                                 <div className="text-xs text-slate-500">{evt.category}</div>
+                              </div>
+                              <span className={`px-2 py-1 rounded-full text-xs font-bold flex items-center gap-1 ${evt.status === 'Completed' ? 'bg-green-200 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
+                                 {evt.status === 'Completed' ? <CheckCircle2 size={12} /> : <Info size={12} />}
+                                 {evt.status}
+                              </span>
+                           </div>
+                        ))
+                    ) : (
+                        <div className="text-center py-8 text-slate-400 italic">No activities recorded.</div>
+                    )}
                  </div>
              </div>
           </div>
@@ -293,7 +356,6 @@ const UsersEvents: React.FC = () => {
              </div>
           </div>
       )}
-
     </div>
   );
 };

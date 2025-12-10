@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { UserData, EventData } from '../types';
+import { UserData, EventData, FeedbackItem } from '../types';
 import { AuthController } from '../controllers/authController';
 import { EventController } from '../controllers/eventController';
 import { UserController } from '../controllers/userController';
 import { RedemptionController } from '../controllers/redemptionController';
+import { FeedbackController } from '../controllers/feedbackController';
 
 export interface RedemptionRequest {
   id: string;
@@ -18,19 +19,23 @@ interface DataContextType {
   users: UserData[];
   events: EventData[];
   registrations: Record<string, string[]>;
+  completedEvents: Record<string, string[]>;
   redemptions: RedemptionRequest[];
+  feedbacks: FeedbackItem[];
   
   // Actions
   login: (email: string, password?: string) => Promise<{ user: UserData | null, error?: string }>;
   addUser: (user: UserData, password?: string) => Promise<boolean>;
   updateUserBonus: (email: string, amount: number) => void; 
   registerForEvent: (email: string, eventId: string) => void;
+  markEventCompleted: (email: string, eventId: string) => void;
   addRedemption: (req: RedemptionRequest) => void;
   processRedemption: (id: string, status: 'Approved' | 'Rejected') => void;
   addEvent: (event: EventData) => void;
   deleteEvent: (id: string) => void;
   deleteUser: (id: string) => void;
   getStudentBonus: (email: string) => number;
+  addFeedback: (feedback: FeedbackItem) => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -39,7 +44,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [users, setUsers] = useState<UserData[]>([]);
   const [events, setEvents] = useState<EventData[]>([]);
   const [registrations, setRegistrations] = useState<Record<string, string[]>>({});
+  const [completedEvents, setCompletedEvents] = useState<Record<string, string[]>>({});
   const [redemptions, setRedemptions] = useState<RedemptionRequest[]>([]);
+  const [feedbacks, setFeedbacks] = useState<FeedbackItem[]>([]);
 
   // Initial Data Fetch via Controllers
   useEffect(() => {
@@ -53,8 +60,14 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const r = await EventController.getRegistrations();
       setRegistrations(r);
 
+      const c = await EventController.getCompletedEvents();
+      setCompletedEvents(c);
+
       const red = await RedemptionController.getAll();
       setRedemptions(red);
+
+      const f = await FeedbackController.getAll();
+      setFeedbacks(f);
     };
     fetchData();
   }, []);
@@ -103,6 +116,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setRegistrations(updatedRegs);
   };
 
+  const markEventCompleted = async (email: string, eventId: string) => {
+    const updatedCompleted = await EventController.markCompleted(email, eventId);
+    setCompletedEvents(updatedCompleted);
+  };
+
   // --- Redemption Actions ---
 
   const addRedemption = async (req: RedemptionRequest) => {
@@ -113,6 +131,12 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const processRedemption = async (id: string, status: 'Approved' | 'Rejected') => {
     const updatedList = await RedemptionController.process(id, status);
     setRedemptions(updatedList);
+  };
+
+  // --- Feedback Actions ---
+  const addFeedback = async (feedback: FeedbackItem) => {
+    const updatedList = await FeedbackController.add(feedback);
+    setFeedbacks(updatedList);
   };
 
   // --- Helpers ---
@@ -127,17 +151,21 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       users,
       events,
       registrations,
+      completedEvents,
       redemptions,
+      feedbacks,
       login,
       addUser,
       updateUserBonus,
       registerForEvent,
+      markEventCompleted,
       addRedemption,
       processRedemption,
       addEvent,
       deleteEvent,
       deleteUser,
-      getStudentBonus
+      getStudentBonus,
+      addFeedback
     }}>
       {children}
     </DataContext.Provider>

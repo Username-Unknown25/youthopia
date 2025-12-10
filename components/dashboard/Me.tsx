@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef } from 'react';
 import { motion, Variants, useSpring, useTransform, animate, useMotionValue } from 'framer-motion';
 import { Award, User, Phone, Book, GraduationCap, Info, ShieldCheck, Sparkles, QrCode, Mail } from 'lucide-react';
@@ -106,13 +107,13 @@ const DigitalIDCard = ({ user }: { user: UserData }) => {
 
             {/* Middle Section: Chip & Details */}
             <div className="flex items-center gap-6 mt-4">
-                <div className="w-12 h-9 rounded bg-gradient-to-br from-yellow-200 to-yellow-600 shadow-inner border border-yellow-400/50 flex items-center justify-center opacity-90">
+                <div className="w-12 h-9 rounded bg-gradient-to-br from-yellow-200 to-yellow-600 shadow-inner border border-yellow-400/50 flex items-center justify-center opacity-90 shrink-0">
                    <div className="w-8 h-5 border border-black/20 rounded-sm grid grid-cols-2">
                       <div className="border-r border-black/20"></div>
                       <div></div>
                    </div>
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                    <div className="text-[10px] text-slate-400 uppercase tracking-wider mb-0.5">Holder Name</div>
                    <div className="font-mono text-xl font-bold text-white tracking-tight truncate shadow-black drop-shadow-md">
                       {user.name.toUpperCase()}
@@ -125,13 +126,13 @@ const DigitalIDCard = ({ user }: { user: UserData }) => {
                <div className="space-y-1">
                   <div className="flex items-center gap-2 text-[10px] text-slate-400 font-mono">
                      <span>ID:</span>
-                     <span className="text-brand-yellow font-bold">YTH-2025-{(Math.random() * 1000).toFixed(0).padStart(3, '0')}</span>
+                     <span className="text-brand-yellow font-bold">YTH-{user.phone ? user.phone.slice(-4) : '2025'}</span>
                   </div>
                   <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{user.school || 'Youthopia University'}</div>
                   <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{user.stream} • Class {user.class}</div>
                </div>
 
-               <div className="bg-white p-1.5 rounded-lg">
+               <div className="bg-white p-1.5 rounded-lg shrink-0">
                   <QrCode size={36} className="text-black" />
                </div>
             </div>
@@ -190,9 +191,9 @@ const Me: React.FC<MeProps> = ({ bonus, user, registeredEventIds }) => {
       className="space-y-8"
     >
       {/* --- Section 1: Digital ID & Points --- */}
-      <div className="flex flex-col md:flex-row gap-8 items-stretch">
+      <div className="flex flex-col lg:flex-row gap-8 items-stretch">
          {/* Digital Visa */}
-         <div className="w-full md:w-auto md:flex-1">
+         <div className="w-full lg:flex-1">
             <motion.div variants={item}>
                <h3 className="font-bold text-slate-800 text-lg mb-4 flex items-center gap-2">
                   <ShieldCheck className="text-brand-purple" size={20} /> Digital Festival Pass
@@ -204,7 +205,7 @@ const Me: React.FC<MeProps> = ({ bonus, user, registeredEventIds }) => {
          {/* Bonus Card */}
          <motion.div 
             variants={item}
-            className="w-full md:w-72 bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col items-center justify-center text-center relative overflow-hidden"
+            className="w-full lg:w-80 bg-white p-8 rounded-3xl shadow-sm border border-slate-100 flex flex-col items-center justify-center text-center relative overflow-hidden"
          >
             <div className="absolute top-0 right-0 p-10 bg-brand-yellow/10 rounded-bl-full -mr-6 -mt-6"></div>
             
@@ -212,7 +213,7 @@ const Me: React.FC<MeProps> = ({ bonus, user, registeredEventIds }) => {
                <Sparkles size={24} />
             </div>
             <div className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-1">Current Balance</div>
-            <div className="text-5xl font-black text-slate-900 mb-2">
+            <div className="text-6xl font-black text-slate-900 mb-2">
                <AnimatedCounter value={bonus} />
             </div>
             <div className="text-xs text-slate-500 font-medium bg-slate-100 px-3 py-1 rounded-full">
@@ -233,7 +234,7 @@ const Me: React.FC<MeProps> = ({ bonus, user, registeredEventIds }) => {
             </span>
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:border-slate-200 transition-colors group">
                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1">
                   <Mail size={12} /> Email

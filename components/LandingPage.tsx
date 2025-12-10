@@ -111,11 +111,11 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateAuth, onFeatureClic
            transition={{ delay: 0.2, duration: 0.8 }}
            className="w-full flex justify-center mb-8 relative"
         >
-            <div className="relative rounded-2xl overflow-hidden shadow-2xl max-w-5xl w-full bg-white">
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl max-w-5xl w-full bg-slate-50 min-h-[300px] md:min-h-[500px] flex items-center justify-center">
                 <img 
                   src="/landing-hero.png" 
                   alt="Birlotsav Presents MPOWER YOUTHOPIA" 
-                  className="w-full h-auto object-contain"
+                  className="w-full h-full object-contain"
                   onError={(e) => {
                       e.currentTarget.src = "https://images.unsplash.com/photo-1459749411177-287ce35e8ead?auto=format&fit=crop&w=1200&q=80";
                   }}

@@ -4,6 +4,7 @@ import { events as defaultEvents } from '../components/dashboard/constants';
 
 const EVENTS_KEY = 'yth_events';
 const REGISTRATIONS_KEY = 'yth_registrations';
+const COMPLETED_EVENTS_KEY = 'yth_completed_events';
 
 export const EventController = {
   getAll: async (): Promise<EventData[]> => {
@@ -38,5 +39,21 @@ export const EventController = {
         return updatedRegs;
     }
     return regs;
+  },
+
+  getCompletedEvents: async (): Promise<Record<string, string[]>> => {
+    return DB.read<Record<string, string[]>>(COMPLETED_EVENTS_KEY, {});
+  },
+
+  markCompleted: async (email: string, eventId: string): Promise<Record<string, string[]>> => {
+    const completed = DB.read<Record<string, string[]>>(COMPLETED_EVENTS_KEY, {});
+    const userCompleted = completed[email] || [];
+
+    if (!userCompleted.includes(eventId)) {
+        const updatedCompleted = { ...completed, [email]: [...userCompleted, eventId] };
+        DB.write(COMPLETED_EVENTS_KEY, updatedCompleted);
+        return updatedCompleted;
+    }
+    return completed;
   }
 };

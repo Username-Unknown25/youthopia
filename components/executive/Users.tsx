@@ -44,59 +44,61 @@ const Users: React.FC = () => {
       </div>
 
       <div className="bg-[#111] border border-white/10 rounded-2xl overflow-hidden min-h-[300px]">
-         <table className="w-full text-left text-sm text-slate-300">
-            <thead className="bg-white/5 text-xs uppercase font-bold text-yellow-500">
-               <tr>
-                  <th className="p-4">Email / ID</th>
-                  <th className="p-4">Name</th>
-                  <th className="p-4">Institution</th>
-                  <th className="p-4">Role</th>
-                  <th className="p-4 text-right">Actions</th>
-               </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-               <AnimatePresence>
-               {users.length > 0 ? users.map((user, i) => (
-                  <motion.tr 
-                    key={user.email || i}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="hover:bg-white/5"
-                  >
-                     <td className="p-4 font-mono text-slate-500 truncate max-w-[150px]">{user.email}</td>
-                     <td className="p-4 font-bold text-white">{user.name}</td>
-                     <td className="p-4">{user.school}</td>
-                     <td className="p-4">
-                        <span className={`px-2 py-1 rounded-full text-xs font-bold capitalize ${user.role === 'admin' ? 'bg-purple-500/20 text-purple-400' : user.role === 'executive' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-blue-500/20 text-blue-400'}`}>
-                           {user.role || 'Student'}
-                        </span>
-                     </td>
-                     <td className="p-4 text-right flex justify-end gap-2">
-                        <button className="p-2 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500/20">
-                           <Edit2 size={16} />
-                        </button>
-                        <button 
-                           onClick={() => handleDelete(user.email)}
-                           className="p-2 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500/20"
-                        >
-                           <Trash2 size={16} />
-                        </button>
-                     </td>
-                  </motion.tr>
-               )) : (
-                  <tr>
-                      <td colSpan={5} className="p-8 text-center text-slate-500">No users found.</td>
-                  </tr>
-               )}
-               </AnimatePresence>
-            </tbody>
-         </table>
+         <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm text-slate-300 min-w-[700px]">
+                <thead className="bg-white/5 text-xs uppercase font-bold text-yellow-500">
+                <tr>
+                    <th className="p-4">Email / ID</th>
+                    <th className="p-4">Name</th>
+                    <th className="p-4">Institution</th>
+                    <th className="p-4">Role</th>
+                    <th className="p-4 text-right">Actions</th>
+                </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                <AnimatePresence>
+                {users.length > 0 ? users.map((user, i) => (
+                    <motion.tr 
+                        key={user.email || i}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="hover:bg-white/5"
+                    >
+                        <td className="p-4 font-mono text-slate-500 truncate max-w-[150px]">{user.email}</td>
+                        <td className="p-4 font-bold text-white">{user.name}</td>
+                        <td className="p-4">{user.school}</td>
+                        <td className="p-4">
+                            <span className={`px-2 py-1 rounded-full text-xs font-bold capitalize ${user.role === 'admin' ? 'bg-purple-500/20 text-purple-400' : user.role === 'executive' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-blue-500/20 text-blue-400'}`}>
+                            {user.role || 'Student'}
+                            </span>
+                        </td>
+                        <td className="p-4 text-right flex justify-end gap-2">
+                            <button className="p-2 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500/20">
+                            <Edit2 size={16} />
+                            </button>
+                            <button 
+                            onClick={() => handleDelete(user.email)}
+                            className="p-2 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500/20"
+                            >
+                            <Trash2 size={16} />
+                            </button>
+                        </td>
+                    </motion.tr>
+                )) : (
+                    <tr>
+                        <td colSpan={5} className="p-8 text-center text-slate-500">No users found.</td>
+                    </tr>
+                )}
+                </AnimatePresence>
+                </tbody>
+            </table>
+         </div>
       </div>
 
       {/* Add User Modal */}
       {showAddModal && (
-         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
             <div className="bg-[#111] border border-white/10 p-8 rounded-3xl w-full max-w-md">
                <h3 className="text-xl font-bold text-white mb-6">Add New User</h3>
                <div className="space-y-4">

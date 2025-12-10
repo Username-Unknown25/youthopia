@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Users, Calendar, Trophy, Activity, TrendingUp, ArrowUpRight, ArrowDownRight } from 'lucide-react';
@@ -8,6 +9,7 @@ const Overview: React.FC = () => {
   const { users, registrations, events } = useData();
 
   const totalStudents = users.filter(u => u.role === 'student').length;
+  // Explicitly cast curr to string[] to avoid TS unknown type errors
   const totalRegistrations = Object.values(registrations).reduce((acc, curr) => acc + (curr as string[]).length, 0);
   const totalBonus = users.reduce((acc, u) => acc + (u.bonus || 0), 0);
   
