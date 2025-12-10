@@ -4,27 +4,34 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Plus, Edit2, Trash2, Check, X, User } from 'lucide-react';
 import Button from '../Button';
 import Input from '../Input';
+import { useData } from '../../contexts/DataContext';
 
 const Users: React.FC = () => {
-  const [users, setUsers] = useState<{ id: string; name: string; school: string; role: string; status: string }[]>([]);
-
-  const [isEditing, setIsEditing] = useState<string | null>(null);
+  const { users, addUser, deleteUser } = useData();
   const [showAddModal, setShowAddModal] = useState(false);
-  const [newUser, setNewUser] = useState({ name: '', school: '', role: 'Student' });
+  const [newUser, setNewUser] = useState({ name: '', school: '', role: 'Student', email: '' });
 
   const handleDelete = (id: string) => {
     if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
-        setUsers(prev => prev.filter(u => u.id !== id));
+        deleteUser(id);
     }
   };
 
   const handleAdd = () => {
-     setUsers(prev => [
-        ...prev, 
-        { id: `YTH-00${prev.length + 1}`, name: newUser.name, school: newUser.school, role: newUser.role, status: 'Active' }
-     ]);
+     addUser({
+        email: newUser.email || `user${users.length + 1}@youthopia.com`,
+        name: newUser.name,
+        school: newUser.school,
+        role: newUser.role.toLowerCase() as any,
+        class: 'N/A',
+        stream: 'N/A',
+        phone: 'N/A',
+        age: 'N/A',
+        gender: 'N/A',
+        bonus: 0
+     });
      setShowAddModal(false);
-     setNewUser({ name: '', school: '', role: 'Student' });
+     setNewUser({ name: '', school: '', role: 'Student', email: '' });
   };
 
   return (
@@ -40,7 +47,7 @@ const Users: React.FC = () => {
          <table className="w-full text-left text-sm text-slate-300">
             <thead className="bg-white/5 text-xs uppercase font-bold text-yellow-500">
                <tr>
-                  <th className="p-4">ID</th>
+                  <th className="p-4">Email / ID</th>
                   <th className="p-4">Name</th>
                   <th className="p-4">Institution</th>
                   <th className="p-4">Role</th>
@@ -49,20 +56,20 @@ const Users: React.FC = () => {
             </thead>
             <tbody className="divide-y divide-white/5">
                <AnimatePresence>
-               {users.length > 0 ? users.map(user => (
+               {users.length > 0 ? users.map((user, i) => (
                   <motion.tr 
-                    key={user.id}
+                    key={user.email || i}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0, height: 0 }}
                     className="hover:bg-white/5"
                   >
-                     <td className="p-4 font-mono text-slate-500">{user.id}</td>
+                     <td className="p-4 font-mono text-slate-500 truncate max-w-[150px]">{user.email}</td>
                      <td className="p-4 font-bold text-white">{user.name}</td>
                      <td className="p-4">{user.school}</td>
                      <td className="p-4">
-                        <span className={`px-2 py-1 rounded-full text-xs font-bold ${user.role === 'Admin' ? 'bg-purple-500/20 text-purple-400' : 'bg-blue-500/20 text-blue-400'}`}>
-                           {user.role}
+                        <span className={`px-2 py-1 rounded-full text-xs font-bold capitalize ${user.role === 'admin' ? 'bg-purple-500/20 text-purple-400' : user.role === 'executive' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-blue-500/20 text-blue-400'}`}>
+                           {user.role || 'Student'}
                         </span>
                      </td>
                      <td className="p-4 text-right flex justify-end gap-2">
@@ -70,7 +77,7 @@ const Users: React.FC = () => {
                            <Edit2 size={16} />
                         </button>
                         <button 
-                           onClick={() => handleDelete(user.id)}
+                           onClick={() => handleDelete(user.email)}
                            className="p-2 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500/20"
                         >
                            <Trash2 size={16} />
@@ -98,6 +105,12 @@ const Users: React.FC = () => {
                      placeholder="Full Name"
                      value={newUser.name}
                      onChange={(e) => setNewUser({...newUser, name: e.target.value})}
+                  />
+                  <Input 
+                     variant="dark"
+                     placeholder="Email"
+                     value={newUser.email}
+                     onChange={(e) => setNewUser({...newUser, email: e.target.value})}
                   />
                   <Input 
                      variant="dark"

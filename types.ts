@@ -6,6 +6,7 @@ export type AuthState = 'login' | 'register' | 'admin' | 'welcome';
 
 export interface UserData {
   name: string;
+  email: string;
   school: string;
   class: string;
   stream: string;
@@ -14,6 +15,7 @@ export interface UserData {
   gender: string;
   adminId?: string;
   role?: 'student' | 'admin' | 'executive';
+  bonus?: number;
 }
 
 export interface FeatureCardProps {

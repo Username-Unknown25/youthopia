@@ -1,10 +1,10 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Power, Megaphone, Lock, RefreshCcw, Bell, Calendar, Key, CheckCircle2, X, Search, Trophy, UserCheck } from 'lucide-react';
+import { Power, Megaphone, Lock, RefreshCcw, Bell, Calendar, Key, CheckCircle2, X, Search, Trophy, UserCheck, Terminal } from 'lucide-react';
 import Button from '../Button';
 import Input from '../Input';
-import { events } from '../dashboard/constants';
+import { useData } from '../../contexts/DataContext';
 
 interface MockStudent {
   id: string;
@@ -13,6 +13,7 @@ interface MockStudent {
 }
 
 const MasterControl: React.FC = () => {
+  const { events, users, registrations, updateUserBonus } = useData();
   const [activeTab, setActiveTab] = useState<'global' | 'events'>('events');
   const [systemState, setSystemState] = useState({
     registrationsOpen: true,
@@ -20,22 +21,49 @@ const MasterControl: React.FC = () => {
     liveFeed: true,
   });
 
+  // System Logs
+  const [logs, setLogs] = useState<string[]>([]);
+  const logsEndRef = useRef<HTMLDivElement>(null);
+
+  const addLog = (msg: string) => {
+      const time = new Date().toLocaleTimeString();
+      setLogs(prev => [...prev, `[${time}] SYSTEM: ${msg}`]);
+  };
+
+  useEffect(() => {
+      logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [logs]);
+
   // Event Control States
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [passcodeInput, setPasscodeInput] = useState('');
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [authError, setAuthError] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-
-  // Mock Enrolled Students Generator - Cleared
-  const getMockStudents = (evtId: string): MockStudent[] => {
-    return [];
-  };
-
   const [currentStudents, setCurrentStudents] = useState<MockStudent[]>([]);
 
+  // Fetch real students registered for the event
+  const getRegisteredStudents = (evtId: string): MockStudent[] => {
+    // 1. Find all emails that have this eventId in registrations
+    const registeredEmails = Object.keys(registrations).filter(email => 
+        registrations[email].includes(evtId)
+    );
+
+    // 2. Map emails to user details from users array
+    return registeredEmails.map(email => {
+        const user = users.find(u => u.email === email);
+        return {
+            id: email, // Using email as ID for uniqueness in this context
+            name: user ? user.name : 'Unknown Student',
+            status: 'Registered' // Default status
+        };
+    });
+  };
+
   const toggleState = (key: keyof typeof systemState) => {
-    setSystemState(prev => ({ ...prev, [key]: !prev[key] }));
+    const newState = !systemState[key];
+    setSystemState(prev => ({ ...prev, [key]: newState }));
+    addLog(`Changed ${String(key)} to ${newState ? 'ENABLED' : 'DISABLED'}`);
   };
 
   const handleEventClick = (id: string) => {
@@ -48,10 +76,12 @@ const MasterControl: React.FC = () => {
   const handleAuthSubmit = () => {
     if (passcodeInput === selectedEventId) {
       setIsAuthorized(true);
-      setCurrentStudents(getMockStudents(selectedEventId!));
+      setCurrentStudents(getRegisteredStudents(selectedEventId!));
       setAuthError(false);
+      addLog(`Admin authorized access for Event ID ${selectedEventId}`);
     } else {
       setAuthError(true);
+      addLog(`Failed authorization attempt for Event ID ${selectedEventId}`);
     }
   };
 
@@ -61,14 +91,37 @@ const MasterControl: React.FC = () => {
     setPasscodeInput('');
   };
 
-  const grantBonus = (studentId: string) => {
+  const grantBonus = (studentEmail: string) => {
+    // 1. Update local UI state
     setCurrentStudents(prev => prev.map(s => 
-      s.id === studentId ? { ...s, status: 'Completed' } : s
+      s.id === studentEmail ? { ...s, status: 'Completed' } : s
     ));
+    
+    // 2. Actually award points in the database
+    // Find event points amount, default to 50 if not set
+    const evt = events.find(e => e.id === selectedEventId);
+    const points = evt?.points || 50;
+    updateUserBonus(studentEmail, points);
+
+    addLog(`Bonus of ${points} granted to ${studentEmail} for Event ${selectedEventId}`);
   };
 
   const grantAllBonus = () => {
+    const evt = events.find(e => e.id === selectedEventId);
+    const points = evt?.points || 50;
+
+    currentStudents.forEach(s => {
+        if (s.status !== 'Completed') {
+            updateUserBonus(s.id, points);
+        }
+    });
+
     setCurrentStudents(prev => prev.map(s => ({ ...s, status: 'Completed' })));
+    addLog(`Bulk bonus grant executed for Event ${selectedEventId}`);
+  };
+
+  const handleBroadcast = () => {
+      addLog("Broadcast message sent to all active sessions.");
   };
 
   const filteredEvents = events.filter(e => 
@@ -155,7 +208,7 @@ const MasterControl: React.FC = () => {
                 />
                 <div className="flex justify-end gap-3">
                    <Button variant="white" className="text-sm py-2">Preview</Button>
-                   <Button variant="dark" className="text-sm py-2">Send Broadcast</Button>
+                   <Button variant="dark" className="text-sm py-2" onClick={handleBroadcast}>Send Broadcast</Button>
                 </div>
              </div>
 
@@ -165,10 +218,10 @@ const MasterControl: React.FC = () => {
                    <Lock size={20} className="text-brand-purple" /> Quick Actions
                 </h3>
                 <div className="flex flex-wrap gap-4">
-                   <Button variant="outline" className="gap-2">
+                   <Button variant="outline" className="gap-2" onClick={() => addLog("Leaderboard cache reset initiated.")}>
                       <RefreshCcw size={16} /> Reset Leaderboard Cache
                    </Button>
-                   <Button variant="outline" className="gap-2">
+                   <Button variant="outline" className="gap-2" onClick={() => addLog("Test notification sent to admin group.")}>
                       <Bell size={16} /> Test Notification System
                    </Button>
                 </div>
@@ -220,6 +273,20 @@ const MasterControl: React.FC = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* SYSTEM TERMINAL */}
+      <div className="bg-[#1e293b] rounded-3xl border border-slate-700 p-4 font-mono text-xs overflow-hidden">
+          <div className="flex items-center gap-2 mb-2 text-slate-400 border-b border-slate-700 pb-2">
+              <Terminal size={14} /> System Log
+          </div>
+          <div className="h-32 overflow-y-auto space-y-1 text-slate-300">
+              {logs.length === 0 && <span className="opacity-50">System initialized. Waiting for actions...</span>}
+              {logs.map((log, i) => (
+                  <div key={i}>{log}</div>
+              ))}
+              <div ref={logsEndRef} />
+          </div>
+      </div>
 
       {/* Auth Modal & Panel Overlay */}
       <AnimatePresence>
@@ -306,7 +373,7 @@ const MasterControl: React.FC = () => {
                           <table className="w-full text-left">
                              <thead className="bg-slate-50 text-xs font-bold text-slate-500 uppercase">
                                 <tr>
-                                   <th className="p-3 pl-4">Student ID</th>
+                                   <th className="p-3 pl-4">Student ID / Email</th>
                                    <th className="p-3">Name</th>
                                    <th className="p-3">Status</th>
                                    <th className="p-3 text-right pr-4">Action</th>
@@ -315,7 +382,7 @@ const MasterControl: React.FC = () => {
                              <tbody className="divide-y divide-slate-100 text-sm">
                                 {currentStudents.map(student => (
                                    <tr key={student.id} className="hover:bg-slate-50">
-                                      <td className="p-3 pl-4 font-mono text-slate-500">{student.id}</td>
+                                      <td className="p-3 pl-4 font-mono text-slate-500 truncate max-w-[150px]">{student.id}</td>
                                       <td className="p-3 font-medium text-slate-800">{student.name}</td>
                                       <td className="p-3">
                                          <span className={`px-2 py-1 rounded-full text-xs font-bold ${student.status === 'Completed' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>

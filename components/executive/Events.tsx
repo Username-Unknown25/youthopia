@@ -4,39 +4,36 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Edit2, Trash2, Calendar, MapPin, Clock } from 'lucide-react';
 import Button from '../Button';
 import Input from '../Input';
-// No initial events
-const initialEvents: any[] = [];
+import { useData } from '../../contexts/DataContext';
 
 const Events: React.FC = () => {
-  const [eventsList, setEventsList] = useState(initialEvents); 
+  const { events, addEvent, deleteEvent } = useData();
   const [showAddModal, setShowAddModal] = useState(false);
   const [newEvent, setNewEvent] = useState({ title: '', category: 'Intercollegiate', date: '', loc: '' });
 
   const handleDelete = (id: string) => {
      if (confirm("Delete this event? This will cancel all registrations associated with it.")) {
-        setEventsList(prev => prev.filter(e => e.id !== id));
+        deleteEvent(id);
      }
   };
 
   const handleAdd = () => {
-     const newId = (eventsList.length + 1).toString();
-     setEventsList(prev => [
-        { 
-            id: newId, 
-            title: newEvent.title, 
-            category: newEvent.category, 
-            date: newEvent.date, 
-            loc: newEvent.loc,
-            time: 'TBA',
-            imageColor: 'from-gray-700 to-gray-900',
-            quote: 'New Event',
-            description: 'Description pending',
-            rules: [],
-            image: ''
-        }, 
-        ...prev
-     ]);
+     const newId = (events.length + 100).toString();
+     addEvent({
+        id: newId, 
+        title: newEvent.title, 
+        category: newEvent.category, 
+        date: newEvent.date, 
+        loc: newEvent.loc,
+        time: 'TBA',
+        imageColor: 'from-gray-700 to-gray-900',
+        quote: 'New Event',
+        description: 'Details coming soon.',
+        rules: [],
+        image: ''
+     });
      setShowAddModal(false);
+     setNewEvent({ title: '', category: 'Intercollegiate', date: '', loc: '' });
   };
 
   return (
@@ -48,10 +45,10 @@ const Events: React.FC = () => {
          </Button>
       </div>
 
-      {eventsList.length > 0 ? (
+      {events.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             <AnimatePresence>
-                {eventsList.map(evt => (
+                {events.map(evt => (
                 <motion.div
                     key={evt.id}
                     initial={{ opacity: 0, scale: 0.9 }}
@@ -60,7 +57,7 @@ const Events: React.FC = () => {
                     layout
                     className="bg-[#111] border border-white/10 rounded-2xl overflow-hidden group hover:border-yellow-500/50 transition-colors"
                 >
-                    <div className={`h-32 bg-gradient-to-r ${evt.imageColor} relative`}>
+                    <div className={`h-32 bg-gradient-to-r ${evt.imageColor || 'from-slate-700 to-slate-900'} relative`}>
                         <div className="absolute top-2 right-2 flex gap-2">
                             <button className="p-2 bg-black/50 text-white rounded-lg hover:bg-black/70 backdrop-blur-md">
                             <Edit2 size={14} />

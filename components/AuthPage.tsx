@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Phone, Lock, Eye, EyeOff, User, GraduationCap, Building, Layers, Info, ShieldCheck, Check, AlertCircle } from 'lucide-react';
+import { Phone, Lock, Eye, EyeOff, User, GraduationCap, Building, Layers, Info, ShieldCheck, Check, AlertCircle, Mail } from 'lucide-react';
 import Input from './Input';
 import Button from './Button';
 import { AuthState, Gender, UserData } from '../types';
+import { useData } from '../contexts/DataContext';
 
 interface AuthPageProps {
   onBack: () => void;
@@ -11,12 +12,14 @@ interface AuthPageProps {
 }
 
 const AuthPage: React.FC<AuthPageProps> = ({ onBack, onLogin }) => {
+  const { addUser, login } = useData();
   const [activeTab, setActiveTab] = useState<AuthState>('login');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
+    email: '',
     phone: '',
     password: '',
     confirmPassword: '',
@@ -38,103 +41,74 @@ const AuthPage: React.FC<AuthPageProps> = ({ onBack, onLogin }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-
-    // 1. Password Match Validation for Register
-    if (activeTab === 'register' && formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match!");
-      return;
-    }
-
-    // 2. Admin Credentials Validation (Kept as system access keys)
-    if (activeTab === 'admin') {
-      if (formData.adminId === '123456' && formData.password === '123456') {
-         setIsLoading(true);
-         setTimeout(() => {
-            setIsLoading(false);
-            onLogin({
-                name: "System Admin",
-                school: "Youthopia Admin",
-                class: "N/A",
-                stream: "N/A",
-                phone: "N/A",
-                age: "N/A",
-                gender: "N/A",
-                adminId: "123456",
-                role: 'admin'
-            });
-         }, 1500);
-         return;
-      } else if (formData.adminId === '789' && formData.password === '789') {
-         setIsLoading(true);
-         setTimeout(() => {
-            setIsLoading(false);
-            onLogin({
-                name: "Executive Director",
-                school: "Youthopia Board",
-                class: "N/A",
-                stream: "N/A",
-                phone: "N/A",
-                age: "N/A",
-                gender: "N/A",
-                adminId: "789",
-                role: 'executive'
-            });
-         }, 1500);
-         return;
-      } else {
-         setError("Invalid Admin ID or Password.");
-         return;
-      }
-    }
-    
-    // 3. Student Login/Register Logic
     setIsLoading(true);
 
-    setTimeout(() => {
-        setIsLoading(false);
-        const storageKey = `user_${formData.phone}`;
+    try {
+        // 1. Password Match Validation for Register
+        if (activeTab === 'register' && formData.password !== formData.confirmPassword) {
+            setError("Passwords do not match!");
+            setIsLoading(false);
+            return;
+        }
 
-        if (activeTab === 'register') {
-            // Check existence
-            if (localStorage.getItem(storageKey)) {
-                setError("Account already exists with this phone number.");
-                return;
+        // 2. Admin Login
+        if (activeTab === 'admin') {
+            const { user, error: loginError } = await login(formData.adminId === '123456' ? 'admin@youthopia.com' : 'executive@youthopia.com', formData.password);
+            
+            if (user) {
+                onLogin(user);
+            } else {
+                // Fallback for custom logic inside controller if needed, or just show error
+                setError("Invalid Admin ID or Password.");
             }
-
-            // Save new user
-            const newUser = {
+            setIsLoading(false);
+            return;
+        }
+        
+        // 3. Register Logic
+        if (activeTab === 'register') {
+            const newUser: UserData = {
                 name: formData.name,
+                email: formData.email,
                 school: formData.school,
                 class: formData.class,
                 stream: formData.stream,
                 phone: formData.phone,
                 age: formData.age,
                 gender: formData.gender,
-                password: formData.password, // Storing simply for this mock auth
                 role: 'student',
-                bonus: 5 // Store initial bonus for persistence
+                bonus: 5
             };
-            localStorage.setItem(storageKey, JSON.stringify(newUser));
             
-            // Proceed to Welcome
-            setActiveTab('welcome');
-
-        } else if (activeTab === 'login') {
-            // Retrieve user
-            const storedData = localStorage.getItem(storageKey);
+            const success = await addUser(newUser, formData.password);
             
-            if (storedData) {
-                const user = JSON.parse(storedData);
-                if (user.password === formData.password) {
-                    onLogin(user, user.bonus || 0);
-                } else {
-                    setError("Incorrect password. Please try again.");
-                }
+            if (success) {
+                setActiveTab('welcome');
             } else {
-                setError("User not found. Please register an account.");
+                setError("Account already exists with this email address.");
             }
+            setIsLoading(false);
+            return;
+        } 
+        
+        // 4. Login Logic
+        if (activeTab === 'login') {
+            const { user, error: loginError } = await login(formData.email, formData.password);
+            
+            if (user) {
+                onLogin(user, user.bonus || 0);
+            } else {
+                setError(loginError || "Invalid credentials.");
+            }
+            setIsLoading(false);
+            return;
         }
-    }, 1500);
+
+    } catch (err) {
+        console.error(err);
+        setError("An unexpected error occurred.");
+        setIsLoading(false);
+    }
   };
 
   const toggleTab = () => {
@@ -161,6 +135,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onBack, onLogin }) => {
 
   const resetForm = () => {
     setFormData({
+        email: '',
         phone: '',
         password: '',
         confirmPassword: '',
@@ -186,7 +161,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onBack, onLogin }) => {
 
   const getHeaderSubtitle = () => {
       switch (activeTab) {
-          case 'login': return 'Sign in with your phone number and password.';
+          case 'login': return 'Sign in with your email or phone.';
           case 'register': return 'Join the Youthopia community!';
           case 'admin': return 'Access the festival dashboard.';
           case 'welcome': return null;
@@ -233,11 +208,11 @@ const AuthPage: React.FC<AuthPageProps> = ({ onBack, onLogin }) => {
                   className="space-y-4"
                 >
                     <Input 
-                      placeholder="Contact Number" 
-                      type="tel" 
-                      name="phone"
-                      icon={<Phone size={18} />}
-                      value={formData.phone}
+                      placeholder="Email or Phone" 
+                      type="text" 
+                      name="email"
+                      icon={<User size={18} />}
+                      value={formData.email}
                       onChange={handleInputChange}
                       required
                     />
@@ -273,6 +248,16 @@ const AuthPage: React.FC<AuthPageProps> = ({ onBack, onLogin }) => {
                       required
                     />
                     
+                     <Input 
+                        placeholder="Email Address" 
+                        type="email"
+                        name="email"
+                        icon={<Mail size={18} />}
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        required
+                      />
+
                      <Input 
                         placeholder="College/School Name" 
                         name="school"
@@ -368,7 +353,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onBack, onLogin }) => {
                   className="space-y-4"
                 >
                     <Input 
-                      placeholder="Admin ID" 
+                      placeholder="Admin ID (or Email)" 
                       type="text" 
                       name="adminId"
                       icon={<ShieldCheck size={18} />}

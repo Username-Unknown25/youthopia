@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { motion, useMotionValue, useTransform, animate, AnimatePresence } from 'framer-motion';
 import { Activity, ShoppingBag, Sparkles, Trophy, Lock, CheckCircle2, ChevronRight, HelpCircle, CircleCheck, CircleAlert } from 'lucide-react';
@@ -147,8 +146,9 @@ const Bonus: React.FC<BonusProps> = ({ bonus, onAddBonus, spinsAvailable, events
       setShowResult(true);
   };
 
-  const progressToNextSpin = (eventsCount % 4) / 4 * 100;
-  const eventsNeeded = 4 - (eventsCount % 4);
+  const spinThreshold = 4;
+  const progressToNextSpin = (eventsCount % spinThreshold) / spinThreshold * 100;
+  const eventsNeeded = spinThreshold - (eventsCount % spinThreshold);
 
   return (
     <div className="space-y-12">
@@ -289,7 +289,7 @@ const Bonus: React.FC<BonusProps> = ({ bonus, onAddBonus, spinsAvailable, events
                ) : (
                    <div className="bg-slate-900/50 rounded-xl p-4 border border-slate-700">
                        <p className="text-slate-300 text-sm mb-3">
-                         Complete <strong>{eventsNeeded}</strong> more event{eventsNeeded !== 1 && 's'} to unlock a spin!
+                         Complete <strong>{eventsNeeded}</strong> more Engagement Activit{eventsNeeded !== 1 ? 'ies' : 'y'} to unlock a spin!
                        </p>
                        <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
                            <motion.div 
@@ -299,7 +299,7 @@ const Bonus: React.FC<BonusProps> = ({ bonus, onAddBonus, spinsAvailable, events
                            />
                        </div>
                        <p className="text-[10px] text-slate-500 mt-2 text-right">
-                          {eventsCount % 4}/4 Completed
+                          {eventsCount % spinThreshold}/{spinThreshold} Completed
                        </p>
                    </div>
                )}

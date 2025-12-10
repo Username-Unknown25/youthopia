@@ -3,6 +3,7 @@ import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, Search, Medal, Crown, Star, Zap, List, BarChart3 } from 'lucide-react';
 import Input from '../Input';
+import { useData } from '../../contexts/DataContext';
 
 interface LeaderboardProps {
   bonus?: number;
@@ -11,15 +12,13 @@ interface LeaderboardProps {
 type Category = 'All' | 'Champion' | 'Expert' | 'Pro' | 'Beginner';
 type ViewMode = 'list' | 'graph';
 
-const Leaderboard: React.FC<LeaderboardProps> = ({ bonus = 1250 }) => {
+const Leaderboard: React.FC<LeaderboardProps> = ({ bonus = 0 }) => {
+  const { users } = useData();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<Category>('All');
   const [viewMode, setViewMode] = useState<ViewMode>('list');
 
   const categories: Category[] = ['All', 'Champion', 'Expert', 'Pro', 'Beginner'];
-
-  // Mock Data Cleared
-  const leaders: { name: string; points: number; school: string; rank?: number; category?: Category }[] = [];
 
   // Helper to determine category
   const getCategory = (pts: number): Category => {
@@ -30,21 +29,30 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ bonus = 1250 }) => {
     return 'Beginner'; 
   };
 
+  // Convert Context Users to Leaders List
+  const leaders = users
+    .filter(u => u.role === 'student')
+    .map(u => ({
+        name: u.name,
+        points: u.bonus || 0,
+        school: u.school,
+        category: getCategory(u.bonus || 0)
+    }));
+
   // Sort by points descending
   const sortedLeaders = [...leaders].sort((a, b) => b.points - a.points);
 
   // Assign Ranks
   const rankedLeaders = sortedLeaders.map((l, index) => ({
       ...l,
-      rank: index + 1,
-      category: getCategory(l.points)
+      rank: index + 1
   }));
 
   // Calculate counts for badges
   const categoryCounts = useMemo(() => {
      const counts: Record<string, number> = { All: rankedLeaders.length };
      rankedLeaders.forEach(l => {
-         counts[l.category!] = (counts[l.category!] || 0) + 1;
+         counts[l.category] = (counts[l.category] || 0) + 1;
      });
      return counts;
   }, [rankedLeaders]);
@@ -199,7 +207,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ bonus = 1250 }) => {
                             scale: 1.005, 
                             backgroundColor: "rgba(248, 250, 252, 1)",
                         }}
-                        className={`grid grid-cols-12 p-4 items-center cursor-default transition-colors ${l.name === 'Alex Student' ? 'bg-yellow-50/60' : ''}`}
+                        className="grid grid-cols-12 p-4 items-center cursor-default transition-colors"
                     >
                         <div className="col-span-2 text-center font-bold text-lg text-slate-400">
                             {l.rank === 1 ? <span className="text-2xl">🥇</span> : l.rank === 2 ? <span className="text-2xl">🥈</span> : l.rank === 3 ? <span className="text-2xl">🥉</span> : `#${l.rank}`}
@@ -207,7 +215,6 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ bonus = 1250 }) => {
                         <div className="col-span-6 md:col-span-5">
                             <div className="font-bold text-slate-800 flex items-center gap-2">
                                 {l.name} 
-                                {l.name === 'Alex Student' && <span className="text-[10px] bg-brand-yellow text-slate-900 px-1.5 py-0.5 rounded-full uppercase tracking-wider font-extrabold shadow-sm">You</span>}
                             </div>
                             <div className="text-xs text-slate-500">{l.school}</div>
                         </div>
@@ -250,7 +257,6 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ bonus = 1250 }) => {
                 if (index === 0) barColor = 'bg-gradient-to-t from-yellow-400 to-yellow-300';
                 else if (index === 1) barColor = 'bg-gradient-to-t from-slate-300 to-slate-200';
                 else if (index === 2) barColor = 'bg-gradient-to-t from-orange-300 to-orange-200';
-                else if (l.name === 'Alex Student') barColor = 'bg-brand-purple';
 
                 return (
                    <div key={l.name} className="flex flex-col items-center justify-end gap-2 group relative w-12 md:w-20 shrink-0 h-full">
@@ -277,16 +283,11 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ bonus = 1250 }) => {
                                 {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
                              </div>
                          )}
-                         {l.name === 'Alex Student' && !isTop3 && (
-                             <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] font-bold text-white uppercase tracking-wider">
-                                You
-                             </div>
-                         )}
                       </motion.div>
 
                       {/* Name Label */}
                       <div className="absolute -bottom-12 text-center w-24">
-                          <div className={`text-xs md:text-sm font-bold truncate ${l.name === 'Alex Student' ? 'text-brand-purple' : 'text-slate-600'}`}>
+                          <div className="text-xs md:text-sm font-bold truncate text-slate-600">
                              {l.name.split(' ')[0]}
                           </div>
                           <div className="text-[10px] text-slate-400 truncate hidden md:block">{l.school}</div>

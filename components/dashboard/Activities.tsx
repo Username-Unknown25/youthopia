@@ -1,11 +1,12 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, MapPin, ChevronLeft, ChevronRight, Search, Clock, CheckCircle2, Quote, AlertCircle, ArrowLeft, Users, AlertTriangle, ArrowUpDown, X, CircleCheck, CircleAlert } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
+import { Calendar, MapPin, ChevronLeft, ChevronRight, Search, Clock, CheckCircle2, Quote, AlertCircle, ArrowLeft, Users, AlertTriangle, ArrowUpDown, X, CircleCheck, CircleAlert, Sparkles } from 'lucide-react';
 import Button from '../Button';
 import Input from '../Input';
 import { EventData } from '../../types';
-import { events } from './constants';
+import { useData } from '../../contexts/DataContext';
 
 interface TeamMember {
   name: string;
@@ -20,6 +21,7 @@ interface ActivitiesProps {
 const PLACEHOLDER_IMAGE = "https://images.unsplash.com/photo-1533174072545-e8d4aa97edf9?auto=format&fit=crop&w=1000&q=80";
 
 const Activities: React.FC<ActivitiesProps> = ({ registeredEventIds, onRegister }) => {
+  const { events } = useData();
   const [activeFilter, setActiveFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [dateFilter, setDateFilter] = useState('All Dates');
@@ -54,29 +56,32 @@ const Activities: React.FC<ActivitiesProps> = ({ registeredEventIds, onRegister 
   const uniqueDates = useMemo(() => {
     const dates = new Set(events.map(e => e.date));
     return ['All Dates', ...Array.from(dates)];
-  }, []);
+  }, [events]);
 
-  const filteredEvents = events.filter(e => {
-    // Category Filter
-    const matchesCategory = activeFilter === 'All' 
-      ? true 
-      : activeFilter === 'Registered' 
-        ? registeredEventIds.includes(e.id)
-        : e.category === activeFilter;
+  // Memoize filtered events to improve performance
+  const filteredEvents = useMemo(() => {
+    return events.filter(e => {
+      // Category Filter
+      const matchesCategory = activeFilter === 'All' 
+        ? true 
+        : activeFilter === 'Registered' 
+          ? registeredEventIds.includes(e.id)
+          : e.category === activeFilter;
 
-    // Search Query Filter
-    const matchesSearch = e.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          e.loc.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    // Date Filter
-    const matchesDate = dateFilter === 'All Dates' || e.date === dateFilter;
+      // Search Query Filter
+      const matchesSearch = e.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                            e.loc.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      // Date Filter
+      const matchesDate = dateFilter === 'All Dates' || e.date === dateFilter;
 
-    return matchesCategory && matchesSearch && matchesDate;
-  }).sort((a, b) => {
-    return sortOrder === 'asc' 
-      ? a.title.localeCompare(b.title) 
-      : b.title.localeCompare(a.title);
-  });
+      return matchesCategory && matchesSearch && matchesDate;
+    }).sort((a, b) => {
+      return sortOrder === 'asc' 
+        ? a.title.localeCompare(b.title) 
+        : b.title.localeCompare(a.title);
+    });
+  }, [events, activeFilter, searchQuery, dateFilter, sortOrder, registeredEventIds]);
 
   // Pagination Logic
   const itemsPerPage = 12;
@@ -195,19 +200,19 @@ const Activities: React.FC<ActivitiesProps> = ({ registeredEventIds, onRegister 
 
   const hasActiveFilters = searchQuery !== '' || activeFilter !== 'All' || dateFilter !== 'All Dates';
 
-  const container = {
+  const container: Variants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.05
+        staggerChildren: 0.03 // Faster stagger
       }
     }
   };
 
-  const item = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 }
+  const item: Variants = {
+    hidden: { opacity: 0, y: 15 },
+    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 400, damping: 25 } }
   };
 
   // --- DETAIL VIEW RENDER ---
@@ -220,6 +225,7 @@ const Activities: React.FC<ActivitiesProps> = ({ registeredEventIds, onRegister 
         initial={{ opacity: 0, x: 50 }}
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: 50 }}
+        transition={{ type: "spring", stiffness: 300, damping: 25 }}
         className="bg-white min-h-[80vh] rounded-3xl overflow-hidden shadow-sm border border-slate-100 flex flex-col relative"
       >
         {/* Header Image/Quote Section */}
@@ -231,7 +237,7 @@ const Activities: React.FC<ActivitiesProps> = ({ registeredEventIds, onRegister 
              transition={{ duration: 0.8 }}
              className="absolute inset-0 z-0"
            >
-              <img src={selectedEvent.image || PLACEHOLDER_IMAGE} alt="" className="w-full h-full object-cover" />
+              <img src={selectedEvent.image || PLACEHOLDER_IMAGE} alt="" loading="lazy" className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-black/60" /> {/* Darken for text readability */}
            </motion.div>
            
@@ -261,7 +267,7 @@ const Activities: React.FC<ActivitiesProps> = ({ registeredEventIds, onRegister 
                   transition={{ delay: 0.4, type: "spring" }}
                   className="mt-4 bg-brand-yellow/90 backdrop-blur-md text-brand-dark px-4 py-1.5 rounded-full text-sm font-bold shadow-lg flex items-center gap-2"
                 >
-                   <span>+{selectedEvent.points} Bonus</span>
+                   <Sparkles size={14} /> <span>+{selectedEvent.points} Bonus Points</span>
                 </motion.div>
              )}
            </div>
@@ -627,7 +633,7 @@ const Activities: React.FC<ActivitiesProps> = ({ registeredEventIds, onRegister 
                   scale: 1.03,
                   boxShadow: "0 25px 30px -5px rgba(0, 0, 0, 0.15)"
                 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
                 className={`bg-white rounded-2xl shadow-sm border flex flex-col h-full cursor-pointer relative overflow-hidden group ${isRegistered ? 'border-green-200' : 'border-slate-100'}`}
                 onClick={(e) => handleRegisterClick(e, evt)}
               >
@@ -636,6 +642,7 @@ const Activities: React.FC<ActivitiesProps> = ({ registeredEventIds, onRegister 
                     <img 
                         src={evt.image || PLACEHOLDER_IMAGE} 
                         alt={evt.title} 
+                        loading="lazy"
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     />
                     {/* Gradient Overlay */}
@@ -653,10 +660,10 @@ const Activities: React.FC<ActivitiesProps> = ({ registeredEventIds, onRegister 
                         </div>
                     )}
                     
-                    {/* Points Badge on Card */}
-                    {(evt.points || 0) > 0 && !isRegistered && (
-                        <div className="absolute top-3 right-3 bg-brand-yellow text-slate-900 text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1 shadow-sm">
-                           +{evt.points} Bonus
+                    {/* Points Badge on Card - Ensuring it's clearly visible */}
+                    {(evt.points || 0) > 0 && (
+                        <div className="absolute bottom-3 right-3 bg-brand-yellow text-slate-900 text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1 shadow-lg z-20 border border-yellow-400">
+                           <Sparkles size={10} className="text-slate-800" /> +{evt.points} Bonus
                         </div>
                     )}
                 </div>
@@ -735,28 +742,31 @@ const Activities: React.FC<ActivitiesProps> = ({ registeredEventIds, onRegister 
       )}
 
       {/* Toast Notification */}
-      <AnimatePresence>
-        {toast && (
-          <motion.div
-            initial={{ opacity: 0, y: 50, x: '-50%' }}
-            animate={{ opacity: 1, y: 0, x: '-50%' }}
-            exit={{ opacity: 0, y: 20, x: '-50%' }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className={`fixed bottom-8 left-1/2 z-[100] px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 font-bold text-sm min-w-[300px] justify-center backdrop-blur-md ${
-              toast.type === 'success' 
-                ? 'bg-slate-900/90 text-white border border-slate-700' 
-                : 'bg-red-500/90 text-white border border-red-400'
-            }`}
-          >
-             {toast.type === 'success' ? (
-               <CircleCheck size={18} className="text-green-400" />
-             ) : (
-               <CircleAlert size={18} className="text-white" />
-             )}
-             {toast.message}
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {typeof document !== 'undefined' && createPortal(
+        <AnimatePresence>
+          {toast && (
+            <motion.div
+              initial={{ opacity: 0, y: 50, x: '-50%' }}
+              animate={{ opacity: 1, y: 0, x: '-50%' }}
+              exit={{ opacity: 0, y: 20, x: '-50%' }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className={`fixed bottom-6 left-1/2 z-[200] px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 font-bold text-sm min-w-[300px] justify-center backdrop-blur-md ${
+                toast.type === 'success' 
+                  ? 'bg-slate-900/95 text-white border border-slate-700' 
+                  : 'bg-red-500/95 text-white border border-red-400'
+              }`}
+            >
+               {toast.type === 'success' ? (
+                 <CircleCheck size={18} className="text-green-400" />
+               ) : (
+                 <CircleAlert size={18} className="text-white" />
+               )}
+               {toast.message}
+            </motion.div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </div>
   );
 };

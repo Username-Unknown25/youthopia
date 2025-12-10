@@ -65,9 +65,22 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateAuth, onFeatureClic
         <motion.div 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="flex items-center gap-2"
+          className="flex items-center gap-3"
         >
-          {/* Logo Recreation */}
+          {/* Logo Space */}
+          <div className="w-12 h-12 relative flex-shrink-0">
+             <img 
+                src="/splash-logo.png" 
+                alt="Logo" 
+                className="w-full h-full object-contain"
+                onError={(e) => {
+                    // Fallback if no logo image is found
+                    e.currentTarget.style.display = 'none';
+                }}
+             />
+          </div>
+
+          {/* Text Branding */}
           <div className="flex flex-col leading-none">
             <span className="text-xs font-bold text-slate-500 tracking-widest">MPOWER</span>
             <div className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-brand-purple to-brand-pink relative">

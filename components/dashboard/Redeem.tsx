@@ -1,8 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CircleCheck, CircleAlert, CircleX } from 'lucide-react';
 import Button from '../Button';
+import { useData } from '../../contexts/DataContext';
+import { UserData } from '../../types';
 
 interface RedeemItem {
   name: string;
@@ -13,14 +14,15 @@ interface RedeemItem {
 interface RedeemProps {
   onRedeem: (cost: number) => void;
   userBonus: number;
+  user: UserData | null;
 }
 
-const Redeem: React.FC<RedeemProps> = ({ onRedeem, userBonus }) => {
+const Redeem: React.FC<RedeemProps> = ({ onRedeem, userBonus, user }) => {
+  const { addRedemption } = useData();
   const [selectedItem, setSelectedItem] = useState<RedeemItem | null>(null);
   const [redeemStatus, setRedeemStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [toast, setToast] = useState<{message: string, type: 'success' | 'error'} | null>(null);
 
-  // Auto-dismiss toast after 3 seconds
   useEffect(() => {
     if (toast) {
       const timer = setTimeout(() => {
@@ -38,18 +40,26 @@ const Redeem: React.FC<RedeemProps> = ({ onRedeem, userBonus }) => {
   ];
 
   const handleConfirm = () => {
-    if (!selectedItem) return;
+    if (!selectedItem || !user) return;
     
     setRedeemStatus('loading');
     
-    // Simulate API call
     setTimeout(() => {
-      // Validation check (simulating server-side check)
       if (userBonus >= selectedItem.cost) {
         onRedeem(selectedItem.cost);
+        
+        // Add request to shared context
+        addRedemption({
+          id: `RED-${Math.floor(Math.random()*10000)}`,
+          user: user.name,
+          item: selectedItem.name,
+          cost: selectedItem.cost,
+          status: 'Pending',
+          time: new Date().toLocaleTimeString()
+        });
+
         setRedeemStatus('success');
         
-        // Auto-close modal after success and show toast
         setTimeout(() => {
           setToast({ message: `Successfully redeemed ${selectedItem.name}!`, type: 'success' });
           setSelectedItem(null);
@@ -156,7 +166,6 @@ const Redeem: React.FC<RedeemProps> = ({ onRedeem, userBonus }) => {
       <AnimatePresence>
         {selectedItem && (
           <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -165,7 +174,6 @@ const Redeem: React.FC<RedeemProps> = ({ onRedeem, userBonus }) => {
               className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
             />
             
-            {/* Modal */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}

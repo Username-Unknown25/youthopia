@@ -1,22 +1,15 @@
-
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, Calendar, Search, Filter, MoreVertical, Edit, Trash2, Plus, X, Save } from 'lucide-react';
+import { Users, Calendar, Search, Filter, Edit, Trash2, Plus, X, Download } from 'lucide-react';
 import Input from '../Input';
 import Button from '../Button';
-// No mock events import
-const initialEvents: any[] = [];
+import { useData } from '../../contexts/DataContext';
 
 const UsersEvents: React.FC = () => {
+  const { users, events, addUser, deleteUser, addEvent, deleteEvent } = useData();
   const [activeTab, setActiveTab] = useState<'users' | 'events'>('users');
   const [searchQuery, setSearchQuery] = useState('');
   
-  // State for Users - Cleared
-  const [users, setUsers] = useState<{ id: string, name: string, school: string, class: string, stream: string, bonus: number }[]>([]);
-
-  // State for Events - Cleared
-  const [eventsList, setEventsList] = useState(initialEvents);
-
   // Modal States
   const [showUserModal, setShowUserModal] = useState(false);
   const [showEventModal, setShowEventModal] = useState(false);
@@ -25,30 +18,57 @@ const UsersEvents: React.FC = () => {
   const [newUser, setNewUser] = useState({ name: '', school: '', class: '', stream: '' });
   const [newEvent, setNewEvent] = useState({ title: '', category: 'Intercollegiate', date: '', loc: '' });
 
-  // --- CRUD OPERATIONS ---
+  // --- ACTIONS ---
+
+  const handleExportCSV = () => {
+    if (users.length === 0) {
+        alert("No user data to export.");
+        return;
+    }
+    const headers = ["ID,Name,School,Class,Stream,Bonus"];
+    const rows = users.map(u => `${u.email},${u.name},${u.school},${u.class},${u.stream},${u.bonus}`);
+    const csvContent = "data:text/csv;charset=utf-8," + headers.concat(rows).join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "student_database.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const handleDeleteUser = (id: string) => {
     if (confirm("Are you sure you want to delete this user?")) {
-      setUsers(prev => prev.filter(u => u.id !== id));
+      deleteUser(id);
     }
   };
 
   const handleAddUser = () => {
-    const id = `YTH-00${users.length + 1}`;
-    setUsers(prev => [{ id, ...newUser, bonus: 0 }, ...prev]);
+    addUser({
+        email: `student${users.length+1}@example.com`, // Auto-generate for manual add
+        name: newUser.name,
+        school: newUser.school,
+        class: newUser.class,
+        stream: newUser.stream,
+        phone: '0000000000',
+        age: '18',
+        gender: 'Other',
+        role: 'student',
+        bonus: 0
+    });
     setShowUserModal(false);
     setNewUser({ name: '', school: '', class: '', stream: '' });
   };
 
   const handleDeleteEvent = (id: string) => {
     if (confirm("Delete this event?")) {
-      setEventsList(prev => prev.filter(e => e.id !== id));
+      deleteEvent(id);
     }
   };
 
   const handleAddEvent = () => {
-    const id = (eventsList.length + 1).toString();
-    const eventToAdd = {
+    const id = (events.length + 100).toString();
+    addEvent({
         id,
         title: newEvent.title,
         category: newEvent.category,
@@ -60,8 +80,7 @@ const UsersEvents: React.FC = () => {
         description: 'Details coming soon.',
         rules: [],
         image: ''
-    };
-    setEventsList(prev => [eventToAdd, ...prev]);
+    });
     setShowEventModal(false);
     setNewEvent({ title: '', category: 'Intercollegiate', date: '', loc: '' });
   };
@@ -69,11 +88,13 @@ const UsersEvents: React.FC = () => {
   // --- FILTERING ---
 
   const filteredUsers = users.filter(user => 
-    user.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    user.id.toLowerCase().includes(searchQuery.toLowerCase())
+    user.role === 'student' && (
+        user.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        user.email.toLowerCase().includes(searchQuery.toLowerCase())
+    )
   );
 
-  const filteredEvents = eventsList.filter(event => 
+  const filteredEvents = events.filter(event => 
     event.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
     event.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -107,7 +128,7 @@ const UsersEvents: React.FC = () => {
          <div className="flex-1">
              <Input 
                 variant="light" 
-                placeholder={activeTab === 'users' ? "Search student by name or ID..." : "Search events by name or category..."}
+                placeholder={activeTab === 'users' ? "Search student by name or email..." : "Search events by name or category..."}
                 icon={<Search size={18} />}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -117,6 +138,11 @@ const UsersEvents: React.FC = () => {
             <button className="bg-white border border-slate-200 p-3 rounded-xl text-slate-500 hover:text-brand-purple hover:border-brand-purple transition-colors">
                 <Filter size={20} />
             </button>
+            {activeTab === 'users' && (
+                <Button variant="white" onClick={handleExportCSV} className="gap-2 border-slate-200 text-slate-600">
+                    <Download size={18} /> Export CSV
+                </Button>
+            )}
             <Button 
                 variant="secondary" 
                 onClick={() => activeTab === 'users' ? setShowUserModal(true) : setShowEventModal(true)}
@@ -139,7 +165,7 @@ const UsersEvents: React.FC = () => {
            <table className="w-full text-left border-collapse">
               <thead className="bg-slate-50 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-100">
                  <tr>
-                    <th className="p-4 pl-6">ID</th>
+                    <th className="p-4 pl-6">ID / Email</th>
                     <th className="p-4">Name</th>
                     <th className="p-4 hidden md:table-cell">School</th>
                     <th className="p-4 hidden md:table-cell">Class/Stream</th>
@@ -151,20 +177,20 @@ const UsersEvents: React.FC = () => {
                  <AnimatePresence>
                  {filteredUsers.length > 0 ? filteredUsers.map(user => (
                     <motion.tr 
-                        key={user.id} 
+                        key={user.email} 
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0, height: 0 }}
                         className="hover:bg-slate-50 transition-colors"
                     >
-                       <td className="p-4 pl-6 font-mono text-slate-400">{user.id}</td>
+                       <td className="p-4 pl-6 font-mono text-slate-400 truncate max-w-[150px]" title={user.email}>{user.email}</td>
                        <td className="p-4 font-bold text-slate-800">{user.name}</td>
                        <td className="p-4 hidden md:table-cell text-slate-600">{user.school}</td>
                        <td className="p-4 hidden md:table-cell text-slate-500">{user.class} - {user.stream}</td>
                        <td className="p-4 font-bold text-brand-purple">{user.bonus}</td>
                        <td className="p-4 text-right pr-6 flex justify-end gap-2">
                           <button className="p-2 hover:bg-slate-200 rounded-lg text-slate-500"><Edit size={16} /></button>
-                          <button onClick={() => handleDeleteUser(user.id)} className="p-2 hover:bg-red-100 rounded-lg text-red-500"><Trash2 size={16} /></button>
+                          <button onClick={() => handleDeleteUser(user.email)} className="p-2 hover:bg-red-100 rounded-lg text-red-500"><Trash2 size={16} /></button>
                        </td>
                     </motion.tr>
                  )) : (
@@ -204,7 +230,7 @@ const UsersEvents: React.FC = () => {
                           </span>
                        </td>
                        <td className="p-4 hidden md:table-cell text-slate-500">{event.date}, {event.time}</td>
-                       <td className="p-4 hidden md:table-cell text-slate-600">45/60</td>
+                       <td className="p-4 hidden md:table-cell text-slate-600">--</td>
                        <td className="p-4">
                           <span className="text-green-600 font-bold text-xs flex items-center gap-1">
                              <div className="w-2 h-2 rounded-full bg-green-500" /> Active

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -48,7 +49,7 @@ const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({ onLogout }) => 
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-slate-200 font-sans flex">
+    <div className="min-h-screen bg-[#0a0a0a] text-slate-200 font-sans flex overflow-hidden">
       
       {/* Mobile Sidebar Toggle */}
       <button 
@@ -114,19 +115,42 @@ const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({ onLogout }) => 
       </motion.aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto h-screen p-6 md:p-10 bg-[#0a0a0a]">
-        <AnimatePresence mode="wait">
-           <motion.div
-             key={activeSection}
-             initial={{ opacity: 0, y: 10 }}
-             animate={{ opacity: 1, y: 0 }}
-             exit={{ opacity: 0, y: -10 }}
-             transition={{ duration: 0.2 }}
-             className="max-w-7xl mx-auto"
-           >
-              {renderContent()}
-           </motion.div>
-        </AnimatePresence>
+      <main className="flex-1 flex flex-col h-screen bg-[#0a0a0a] relative">
+        
+        {/* Ticker Tape */}
+        <div className="bg-[#111] border-b border-white/5 h-8 overflow-hidden flex items-center relative z-20">
+            <div className="bg-yellow-600 px-3 h-full flex items-center font-bold text-black text-[10px] uppercase tracking-widest z-10">
+                Live Feed
+            </div>
+            <motion.div 
+               className="flex whitespace-nowrap text-xs text-slate-400 font-mono"
+               animate={{ x: [0, -1000] }}
+               transition={{ repeat: Infinity, duration: 20, ease: "linear" }}
+            >
+               <span className="mx-4 text-white">Total Footfall: 1,248 <span className="text-green-500">▲ 12%</span></span> • 
+               <span className="mx-4 text-white">Bonus Issued: 45.2k <span className="text-green-500">▲ 8%</span></span> • 
+               <span className="mx-4 text-white">Active Sessions: 320</span> • 
+               <span className="mx-4 text-white">Server Load: 45% <span className="text-green-500">Stable</span></span> • 
+               <span className="mx-4 text-white">Top Event: Pulse Parade (98% Cap)</span> • 
+               <span className="mx-4 text-white">Redemption Queue: 0 Pending</span> •
+               <span className="mx-4 text-white">Critical Alerts: <span className="text-green-500">NONE</span></span>
+            </motion.div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-6 md:p-10">
+            <AnimatePresence mode="wait">
+            <motion.div
+                key={activeSection}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+                className="max-w-7xl mx-auto"
+            >
+                {renderContent()}
+            </motion.div>
+            </AnimatePresence>
+        </div>
       </main>
     </div>
   );

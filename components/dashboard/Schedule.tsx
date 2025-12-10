@@ -1,14 +1,16 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Search, Clock, Calendar, Filter } from 'lucide-react';
 import Input from '../Input';
-import { events } from './constants';
+import { useData } from '../../contexts/DataContext';
 
 interface ScheduleProps {
     registeredEventIds: string[];
 }
 
 const Schedule: React.FC<ScheduleProps> = ({ registeredEventIds }) => {
+  const { events } = useData();
   const [searchQuery, setSearchQuery] = useState('');
   const [showMyEvents, setShowMyEvents] = useState(false);
 

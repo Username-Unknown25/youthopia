@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { motion, Variants, useSpring, useTransform, animate, useMotionValue } from 'framer-motion';
-import { Award, User, Phone, Book, GraduationCap, Info, ShieldCheck, Sparkles, QrCode } from 'lucide-react';
+import { Award, User, Phone, Book, GraduationCap, Info, ShieldCheck, Sparkles, QrCode, Mail } from 'lucide-react';
 import { UserData } from '../../types';
 
 interface MeProps {
@@ -172,6 +172,7 @@ const Me: React.FC<MeProps> = ({ bonus, user, registeredEventIds }) => {
 
   const userData = user || {
     name: "Guest Student",
+    email: "guest@example.com",
     school: "N/A",
     class: "N/A",
     stream: "N/A",
@@ -235,9 +236,11 @@ const Me: React.FC<MeProps> = ({ bonus, user, registeredEventIds }) => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:border-slate-200 transition-colors group">
                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1">
-                  <Phone size={12} /> Contact
+                  <Mail size={12} /> Email
                </div>
-               <div className="font-bold text-slate-800 text-lg group-hover:text-brand-purple transition-colors">{userData.phone}</div>
+               <div className="font-bold text-slate-800 text-lg group-hover:text-brand-purple transition-colors truncate" title={userData.email}>
+                 {userData.email}
+               </div>
             </div>
             
             <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:border-slate-200 transition-colors group">

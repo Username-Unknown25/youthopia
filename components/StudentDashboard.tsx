@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Menu, X, User, Activity, Trophy, Coins, ShoppingBag, 
@@ -15,6 +15,7 @@ import Score from './dashboard/Score';
 import MapPage from './dashboard/Map';
 import Help from './dashboard/Help';
 import { UserData } from '../types';
+import { useData } from '../contexts/DataContext';
 
 interface StudentDashboardProps {
   onLogout: () => void;
@@ -24,27 +25,38 @@ interface StudentDashboardProps {
 
 type DashboardSection = 'me' | 'activities' | 'leaderboard' | 'bonus' | 'redeem' | 'score' | 'map' | 'help';
 
-const StudentDashboard: React.FC<StudentDashboardProps> = ({ onLogout, user, initialBonus = 0 }) => {
+const StudentDashboard: React.FC<StudentDashboardProps> = ({ onLogout, user }) => {
+  const { 
+    getStudentBonus, 
+    registrations, 
+    updateUserBonus, 
+    registerForEvent, 
+    events 
+  } = useData();
+  
   const [activeSection, setActiveSection] = useState<DashboardSection>('me');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  // Initial bonus based on prop (e.g. 5 from registration)
-  const [bonus, setBonus] = useState(initialBonus);
-  // Shared state for registered events
-  const [registeredEventIds, setRegisteredEventIds] = useState<string[]>([]);
-  // Track how many spins the user has consumed
   const [spinsUsed, setSpinsUsed] = useState(0);
 
+  // Derived state from Context
+  const bonus = user ? getStudentBonus(user.email) : 0;
+  const registeredEventIds = (user && registrations[user.email]) ? registrations[user.email] : [];
+
   const handleRedeem = (cost: number) => {
-    setBonus(prev => Math.max(0, prev - cost));
+    if (user) {
+        updateUserBonus(user.email, -cost);
+    }
   };
 
   const handleAddBonus = (amount: number) => {
-    setBonus(prev => prev + amount);
+    if (user) {
+        updateUserBonus(user.email, amount);
+    }
   };
 
   const handleEventRegistration = (eventId: string) => {
-    if (!registeredEventIds.includes(eventId)) {
-        setRegisteredEventIds(prev => [...prev, eventId]);
+    if (user) {
+        registerForEvent(user.email, eventId);
     }
   };
 
@@ -56,8 +68,13 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ onLogout, user, ini
     setActiveSection('redeem');
   };
 
-  // Logic: 1 Spin for every 4 events registered/completed
-  const totalSpinsEarned = Math.floor(registeredEventIds.length / 4);
+  // Logic: 1 Spin for every 4 Engagement Activities registered/completed
+  const engagementEventsRegistered = useMemo(() => registeredEventIds.filter(id => {
+    const evt = events.find(e => e.id === id);
+    return evt?.category === 'Engagement';
+  }), [registeredEventIds, events]);
+  
+  const totalSpinsEarned = Math.floor(engagementEventsRegistered.length / 4);
   const spinsAvailable = Math.max(0, totalSpinsEarned - spinsUsed);
 
   const menuItems = [
@@ -71,7 +88,6 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ onLogout, user, ini
     { id: 'help', label: 'Help', icon: <HelpCircle size={20} /> },
   ];
 
-  // Mobile Bottom Tab Configuration
   const bottomTabs = [
     { id: 'me', label: 'Me', icon: <User size={20} /> },
     { id: 'activities', label: 'Events', icon: <Activity size={20} /> },
@@ -93,13 +109,13 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ onLogout, user, ini
             bonus={bonus} 
             onAddBonus={handleAddBonus} 
             spinsAvailable={spinsAvailable}
-            eventsCount={registeredEventIds.length}
+            eventsCount={engagementEventsRegistered.length}
             onSpinUsed={handleSpinUsed}
             onNavigateToRedeem={handleNavigateToRedeem}
           />
         );
       case 'redeem': 
-        return <Redeem onRedeem={handleRedeem} userBonus={bonus} />;
+        return <Redeem onRedeem={handleRedeem} userBonus={bonus} user={user} />;
       case 'score': 
         return <Score bonus={bonus} />;
       case 'map':
@@ -114,14 +130,14 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ onLogout, user, ini
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col md:flex-row font-sans">
       
-      {/* Mobile Header (Minimal Branding) */}
+      {/* Mobile Header */}
       <header className="md:hidden bg-brand-dark text-white p-4 flex justify-center items-center z-40 sticky top-0 shadow-md">
          <div className="flex items-center gap-2">
             <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-yellow to-brand-pink">YOUTHOPIA</span>
          </div>
       </header>
 
-      {/* Mobile Menu Drawer (For 'More' options) */}
+      {/* Mobile Menu Drawer */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div 
@@ -171,7 +187,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ onLogout, user, ini
         )}
       </AnimatePresence>
 
-      {/* Desktop Sidebar (Unchanged) */}
+      {/* Desktop Sidebar */}
       <aside className="hidden md:flex flex-col w-64 bg-brand-dark text-white h-screen sticky top-0 shadow-xl z-40">
         <div className="p-6 border-b border-slate-800">
           <h1 className="text-2xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-brand-purple to-brand-pink">
@@ -273,7 +289,6 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ onLogout, user, ini
             </button>
           ))}
           
-          {/* More Button */}
           <button
             onClick={() => setIsMobileMenuOpen(true)}
             className={`flex flex-col items-center gap-1 p-2 rounded-xl text-slate-400 hover:text-slate-600 min-w-[64px]`}

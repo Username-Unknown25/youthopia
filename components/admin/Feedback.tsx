@@ -1,7 +1,8 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Smile, Frown, Meh, Heart, Zap, Archive, Check } from 'lucide-react';
+import { Check } from 'lucide-react';
+import { SimpleBarChart } from './Charts';
 
 const Feedback: React.FC = () => {
   const ratings = [
@@ -13,6 +14,10 @@ const Feedback: React.FC = () => {
   ];
 
   const [feedItems, setFeedItems] = useState<{id: number; event: string; user: string; emoji: string; time: string}[]>([]);
+
+  // Mock Sentiment Data
+  const sentimentData = [20, 45, 60, 80, 50, 65, 30];
+  const sentimentLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   const handleArchive = (id: number) => {
     setFeedItems(prev => prev.filter(item => item.id !== id));
@@ -42,11 +47,11 @@ const Feedback: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-         {/* Chart Placeholder */}
-         <div className="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+         {/* Chart Area */}
+         <div className="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col h-[400px]">
             <h3 className="font-bold text-slate-800 mb-6">Happiness Trend</h3>
-            <div className="h-64 flex items-center justify-center text-slate-300">
-               No data available
+            <div className="flex-1 w-full px-4 pb-4">
+               <SimpleBarChart data={sentimentData} labels={sentimentLabels} color="bg-gradient-to-t from-yellow-400 to-orange-400" />
             </div>
          </div>
 
